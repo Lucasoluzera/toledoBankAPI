@@ -1,10 +1,6 @@
-anguage: java
+language: java
 jdk:
   - oraclejdk8
-
-sudo: false
-
-cache:
-  directories:
-    - $HOME/.m2
-    - $HOME/.gradle
+dist: trusty
+before_install:
+  - chmod +x mnvw
