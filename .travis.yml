@@ -5,6 +5,11 @@ jdk:
 dist: trusty
 service:
     - postgresql
+addons:
+  postgresql: "11.2"
+  apt:
+    packages:
+      - postgresql-11
 before_install:
   - chmod +x mvnw
 before_script:
