@@ -3,17 +3,22 @@ sudo: true
 jdk:
   - oraclejdk8
 dist: trusty
-service:
+services:
     - postgresql
 addons:
-  postgresql: "11.2"
+  postgresql: "11"
   apt:
     packages:
-    - postgresql-11.2
-    - postgresql-client-11.2
+    - postgresql-11
+    - postgresql-client-11
+    - postgresql-server-dev-11
+env:
+  global:
+  - PGPORT=5432
+  - PGUSER=postgres
 before_install:
   - sudo apt-get update
   - sudo apt-get install
   - chmod +x mvnw
 before_script:
-    - psql -c "CREATE DATABASE toledoBank;" -U postgres
+      - psql -c 'create database travis_ci_test;' -U postgres
