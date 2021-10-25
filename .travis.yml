@@ -6,11 +6,11 @@ dist: trusty
 service:
     - postgresql
 addons:
-  postgresql: "12"
+  postgresql: "11.2"
   apt:
     packages:
-    - postgresql-12
-    - postgresql-client-12
+    - postgresql-11.2
+    - postgresql-client-11.2
 before_install:
   - sudo apt-get update
   - sudo apt-get install
