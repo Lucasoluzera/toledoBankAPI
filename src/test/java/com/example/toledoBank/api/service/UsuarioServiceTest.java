@@ -30,7 +30,7 @@ public class UsuarioServiceTest {
     }
 
     @Test
-    @DisplayName("Deve salvar um usuário com sucesso.")
+    @DisplayName("Deve salvar um usuário com sucesso")
     void salvarUsuario() {
         Usuario usuario = Usuario
                 .builder()
