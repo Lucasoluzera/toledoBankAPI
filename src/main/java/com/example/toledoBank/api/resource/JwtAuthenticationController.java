@@ -1,8 +1,10 @@
-package com.example.toledoBank.api.seguranca;
+package com.example.toledoBank.api.resource;
 
 import com.example.toledoBank.api.dto.UsuarioDTO;
 import com.example.toledoBank.api.model.Usuario;
 import com.example.toledoBank.api.repository.UsuarioRepository;
+import com.example.toledoBank.api.seguranca.JwtTokenUtil;
+import com.example.toledoBank.api.seguranca.JwtUserDetailsService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
