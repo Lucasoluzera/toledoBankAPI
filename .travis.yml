@@ -5,16 +5,16 @@ jdk:
 dist: xenial
 before_install:
   - chmod +x mvnw
-  - sed -e 's/^port.*/port = 5432/' /etc/postgresql/11/main/postgresql.conf > postgresql.conf
-  - sudo chown postgres postgresql.conf
-  - sudo mv postgresql.conf /etc/postgresql/11/main
-  - sudo cp /etc/postgresql/{10,11}/main/pg_hba.conf
-  - sudo service postgresql restart 11
 install:
   - sudo apt-get install -yq --no-install-suggests --no-install-recommends postgresql-common
   - sudo service postgresql stop
   - sudo apt install -yq --no-install-suggests --no-install-recommends postgresql-11 postgresql-client-11
   - sudo service postgresql start 11
 before_script:
+  - sed -e 's/^port.*/port = 5432/' /etc/postgresql/11/main/postgresql.conf > postgresql.conf
+  - sudo chown postgres postgresql.conf
+  - sudo mv postgresql.conf /etc/postgresql/11/main
+  - sudo cp /etc/postgresql/{10,11}/main/pg_hba.conf
+  - sudo service postgresql restart 11
   - export PATH="/usr/lib/postgresql/11/bin:$PATH"
   - psql -c 'CREATE DATABASE travis_ci_test;' -U postgres
