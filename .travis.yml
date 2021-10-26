@@ -1,5 +1,6 @@
 language: java
 sudo: true
+dist: xenial
 jdk:
   - oraclejdk8
 dist: trusty
@@ -7,7 +8,8 @@ before_install:
   - chmod +x mvnw
 before_script:
   - psql -c 'create database travis_ci_test;' -U postgres
-services:
-    - postgresql
-addons:
-  postgresql: "11"
+install:
+  - sudo apt-get install -yq --no-install-suggests --no-install-recommends postgresql-common
+  - sudo service postgresql stop
+  - sudo apt install -yq --no-install-suggests --no-install-recommends postgresql-11 postgresql-client-11
+  - sudo service postgresql start 11
