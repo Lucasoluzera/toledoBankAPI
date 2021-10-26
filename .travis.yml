@@ -19,4 +19,4 @@ before_script:
   - export PATH="/usr/lib/postgresql/11/bin:$PATH"
   - psql -c 'CREATE DATABASE travis_ci_test;' -U postgres
 after_success:
-  - bash < (curl -s https://codecov.io/bash)
+  - bash <(curl -s https://codecov.io/bash)
