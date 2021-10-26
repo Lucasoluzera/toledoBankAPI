@@ -43,8 +43,8 @@ public class AuthenticationController {
 
         String senhaFront = usuarioDTO.getSenha();
 
-        authenticate(usuarioDTO.getCpf(), senhaFront);
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(usuarioDTO.getCpf());
+        authenticate(usuarioDTO.getLogin(), senhaFront);
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(usuarioDTO.getLogin());
         Usuario usuario = (Usuario) userDetails;
         usuario.setToken(jwtTokenUtil.generateToken(userDetails));
 

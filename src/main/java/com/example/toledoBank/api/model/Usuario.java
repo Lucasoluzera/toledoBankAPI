@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -24,10 +23,8 @@ public class Usuario implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private Long id;
-    @Column(name = "nome")
-    private String nome;
-    @Column(name = "cpf")
-    private String cpf;
+    @Column(name = "login")
+    private String login;
     @Column(name = "senha")
     private String senha;
 
@@ -47,7 +44,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.cpf;
+        return this.login;
     }
 
     @Override

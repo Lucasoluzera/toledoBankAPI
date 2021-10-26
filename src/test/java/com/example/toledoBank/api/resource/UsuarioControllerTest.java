@@ -44,19 +44,18 @@ public class UsuarioControllerTest {
     UsuarioService service;
 
     @Test
-    @DisplayName("Deve criar um usuário com sucesso.")
+    @DisplayName("Deve criar um usuário comum com sucesso.")
     void criarUsuario() throws Exception {
 
         UsuarioDTO usuarioDTO = UsuarioDTO.builder()
                 .nome("Lucas Azevedo Souza")
-                .cpf("50336912870")
+                .login("50336912870")
                 .senha("05/02/2001")
                 .build();
 
         Usuario usuario = Usuario.builder()
                 .id(1L)
-                .nome("Lucas Azevedo Souza")
-                .cpf("50336912870")
+                .login("50336912870")
                 .senha("05/02/2001")
                 .build();
 
@@ -74,8 +73,8 @@ public class UsuarioControllerTest {
                 .perform(request)
                 .andExpect(status().isCreated())
                 .andExpect( jsonPath("id").isNotEmpty())
-                .andExpect( jsonPath("nome").value(usuarioDTO.getNome()))
-                .andExpect( jsonPath("cpf").value(usuarioDTO.getCpf()))
+//                .andExpect( jsonPath("nome").value(usuarioDTO.getNome()))
+                .andExpect( jsonPath("login").value(usuarioDTO.getLogin()))
                 .andExpect( jsonPath("senha").value(usuarioDTO.getSenha()));
 
     }

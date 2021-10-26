@@ -34,9 +34,8 @@ public class UsuarioServiceTest {
     void salvarUsuario() {
         Usuario usuario = Usuario
                 .builder()
-                .nome("Lucas Azevedo Souza")
                 .senha("05/02/2001")
-                .cpf("50336912870")
+                .login("50336912870")
                 .build();
 
         String senha = new BCryptPasswordEncoder().encode(usuario.getSenha());
@@ -45,17 +44,15 @@ public class UsuarioServiceTest {
                 .thenReturn(
                         Usuario.builder()
                         .id(1L)
-                        .nome("Lucas Azevedo Souza")
                         .senha(senha)
-                        .cpf("50336912870")
+                        .login("50336912870")
                         .build());
 
         Usuario usuarioSalvo = service.save(usuario);
 
         assertThat(usuarioSalvo.getId()).isNotNull();
-        assertThat(usuarioSalvo.getCpf()).isEqualTo("50336912870");
+        assertThat(usuarioSalvo.getLogin()).isEqualTo("50336912870");
         assertThat(usuarioSalvo.getSenha()).isEqualTo(senha);
-        assertThat(usuarioSalvo.getNome()).isEqualTo("Lucas Azevedo Souza");
 
     }
 }
