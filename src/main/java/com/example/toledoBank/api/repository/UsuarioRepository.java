@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
-    Usuario findByCpf(String cpf);
+    Usuario findByLogin(String login);
 
-    Boolean existsByCpf(String cpf);
+    Boolean existsByLogin(String login);
 }

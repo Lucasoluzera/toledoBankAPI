@@ -1,6 +1,5 @@
 package com.example.toledoBank.api.seguranca;
 
-import com.example.toledoBank.api.model.Usuario;
 import com.example.toledoBank.api.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,9 +18,9 @@ public class JwtUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String cpf) throws UsernameNotFoundException {
 
-        if (usuarioRepository.existsByCpf(cpf)) {
+        if (usuarioRepository.existsByLogin(cpf)) {
 
-            return usuarioRepository.findByCpf(cpf);
+            return usuarioRepository.findByLogin(cpf);
         }
 
         throw new UsernameNotFoundException("CPF: " + cpf + " não encontrado.");
