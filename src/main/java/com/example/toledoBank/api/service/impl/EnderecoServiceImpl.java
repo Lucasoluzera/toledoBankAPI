@@ -28,6 +28,9 @@ public class EnderecoServiceImpl implements EnderecoService {
 
     @Override
     public Endereco update(Endereco enderecoAtualizar) {
-        return null;
+        if(enderecoAtualizar == null || enderecoAtualizar.getId() == null)
+         throw new IllegalArgumentException("Endereco não pode ser nullo.");
+
+        return repository.save(enderecoAtualizar);
     }
 }
