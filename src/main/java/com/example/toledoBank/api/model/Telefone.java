@@ -19,9 +19,6 @@ public class Telefone {
     @Column
     Long id;
 
-    @Column(name = "ddd")
-    int ddd;
-
     @Column(name = "numero")
     String numero;
 }

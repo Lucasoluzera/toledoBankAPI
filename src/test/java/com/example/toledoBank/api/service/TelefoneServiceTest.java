@@ -43,14 +43,12 @@ public class TelefoneServiceTest {
                 .thenReturn(
                                 Telefone.builder()
                                         .id(1L)
-                                        .ddd(18)
                                         .numero("996230715")
                                         .build());
 
         Telefone telefoneSalvo = service.save(telefone);
 
         assertThat(telefoneSalvo.getId()).isNotNull();
-        assertThat(telefoneSalvo.getDdd()).isEqualTo(18);
         assertThat(telefoneSalvo.getNumero()).isEqualTo("996230715");
     }
 
@@ -73,13 +71,11 @@ public class TelefoneServiceTest {
 
         assertThat(telefone.getId()).isEqualTo(telefoneAlterado.getId());
         assertThat(telefone.getNumero()).isEqualTo(telefoneAlterado.getNumero());
-        assertThat(telefone.getDdd()).isEqualTo(telefoneAlterado.getDdd());
     }
 
 
     private Telefone criarTelefone() {
         return Telefone.builder()
-                .ddd(18)
                 .numero("996230715")
                 .build();
     }
