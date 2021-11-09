@@ -4,9 +4,7 @@ import com.example.toledoBank.api.dto.PessoaDTO;
 import com.example.toledoBank.api.model.Endereco;
 import com.example.toledoBank.api.model.Pessoa;
 import com.example.toledoBank.api.model.Telefone;
-import com.example.toledoBank.api.repository.EnderecoRepository;
 import com.example.toledoBank.api.repository.PessoaRepository;
-import com.example.toledoBank.api.repository.TelefoneRepository;
 import com.example.toledoBank.api.service.EnderecoService;
 import com.example.toledoBank.api.service.PessoaService;
 import com.example.toledoBank.api.service.TelefoneService;
@@ -14,9 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.DateFormat;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 @Service
 public class PessoaServiceImpl implements PessoaService {
@@ -65,5 +61,15 @@ public class PessoaServiceImpl implements PessoaService {
     @Override
     public Endereco salvarEndereco(Endereco endereco) {
         return enderecoService.save(endereco);
+    }
+
+    @Override
+    public Pessoa buscarPorCPF(String cpf) {
+        return pessoaRepository.findByCpfCnpj(cpf);
+    }
+
+    @Override
+    public Boolean existePorCPF(String cpf) {
+        return pessoaRepository.existsByCpfCnpj(cpf);
     }
 }

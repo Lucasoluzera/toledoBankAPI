@@ -1,0 +1,1 @@
+ALTER TABLE usuario add column if not exists pessoa_id bigint references pessoa

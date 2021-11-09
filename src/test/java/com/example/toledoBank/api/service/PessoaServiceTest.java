@@ -5,7 +5,6 @@ import com.example.toledoBank.api.enums.TipoPessoa;
 import com.example.toledoBank.api.model.Endereco;
 import com.example.toledoBank.api.model.Pessoa;
 import com.example.toledoBank.api.model.Telefone;
-import com.example.toledoBank.api.model.Usuario;
 import com.example.toledoBank.api.repository.PessoaRepository;
 import com.example.toledoBank.api.service.impl.PessoaServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,8 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
 import org.mockito.Mockito;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -133,7 +130,36 @@ public class PessoaServiceTest {
 
     }
 
+    @Test
+    @DisplayName("Deve retornar uma pessoa com o CPF cadastrado")
+    void buscarPessoaCpf() {
+        Pessoa pessoa = criarPessoaFisica(criarEndereco(), criarTelefone());
 
+        BDDMockito.given(repository.findByCpfCnpj(Mockito.any(String.class))).willReturn(pessoa);
+
+        Pessoa pessoaBanco = pessoaService.buscarPorCPF("50336912870");
+
+        assertThat(pessoaBanco.getId()).isNotNull();
+        assertThat(pessoaBanco.getCpfCnpj()).isEqualTo("50336912870");
+        assertThat(pessoaBanco.getNomeRazaoSocial()).isEqualTo("Lucas Azevedo Souza");
+        assertThat(pessoaBanco.getDataNascAbertura()).isEqualTo(LocalDate.of(2001, 2, 5));
+        assertThat(pessoaBanco.getTipoPessoa()).isEqualTo(TipoPessoa.FISICA);
+
+    }
+
+    @Test
+    @DisplayName("Deve retornar true para uma pessoa com o CPF cadastrado")
+    void existePessoaCpf() {
+        Pessoa pessoa = criarPessoaFisica(criarEndereco(), criarTelefone());
+
+        BDDMockito.given(repository.existsByCpfCnpj(Mockito.any(String.class))).willReturn(true);
+
+        Boolean existePessoa = pessoaService.existePorCPF(pessoa.getCpfCnpj());
+
+        assertThat(existePessoa).isTrue();
+
+
+    }
 
     private Pessoa criarPessoaFisica(Endereco endereco, Telefone telefone) {
         return Pessoa.builder()

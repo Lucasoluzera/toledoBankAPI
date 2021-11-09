@@ -1,7 +1,6 @@
 package com.example.toledoBank.api.resource;
 
 import com.example.toledoBank.api.dto.UsuarioDTO;
-import com.example.toledoBank.api.model.Usuario;
 import com.example.toledoBank.api.seguranca.JwtAuthenticationEntryPoint;
 import com.example.toledoBank.api.service.UsuarioService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,7 +31,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest
 @AutoConfigureMockMvc(addFilters = false) // coloco isso pra não fazer a autenticação
 @ContextConfiguration(classes = {JwtAuthenticationEntryPoint.class}) // Carrego esse cara para fazer o EntryPoint
-@Import({ModelMapper.class, UsuarioController.class}) // o Import no ModelMapper é explicável.. o Import do UsuarioController tá estranho.. não deveria ser assim..
+@Import({ModelMapper.class, UsuarioController.class})
+// o Import no ModelMapper é explicável.. o Import do UsuarioController tá estranho.. não deveria ser assim..
 public class UsuarioControllerTest {
 
     static String URL = "/usuario";
@@ -47,19 +47,14 @@ public class UsuarioControllerTest {
     @DisplayName("Deve criar um usuário comum com sucesso.")
     void criarUsuario() throws Exception {
 
-        UsuarioDTO usuarioDTO = UsuarioDTO.builder()
-                .nome("Lucas Azevedo Souza")
-                .login("50336912870")
-                .senha("05/02/2001")
-                .build();
+        UsuarioDTO usuarioDTO = criarUsuarioDTO();
 
-        Usuario usuario = Usuario.builder()
-                .id(1L)
-                .login("50336912870")
-                .senha("05/02/2001")
-                .build();
+        UsuarioDTO usuarioDTOSalvo = criarUsuarioDTO();
+        usuarioDTOSalvo.setId(1L);
 
-        BDDMockito.given(service.save(Mockito.any(Usuario.class))).willReturn(usuario);
+
+        BDDMockito.given(service.save(Mockito.any(UsuarioDTO.class))).willReturn(usuarioDTOSalvo);
+
 
         String json = new ObjectMapper().writeValueAsString(usuarioDTO);
 
@@ -72,10 +67,22 @@ public class UsuarioControllerTest {
         mvc
                 .perform(request)
                 .andExpect(status().isCreated())
-                .andExpect( jsonPath("id").isNotEmpty())
-//                .andExpect( jsonPath("nome").value(usuarioDTO.getNome()))
-                .andExpect( jsonPath("login").value(usuarioDTO.getLogin()))
-                .andExpect( jsonPath("senha").value(usuarioDTO.getSenha()));
+                .andExpect(jsonPath("id").isNotEmpty())
+                .andExpect( jsonPath("nomeRazaoSocial").value(usuarioDTO.getNomeRazaoSocial()))
+                .andExpect( jsonPath("cpfCnpj").value(usuarioDTO.getCpfCnpj()))
+                .andExpect(jsonPath("login").value(usuarioDTO.getLogin()))
+                .andExpect(jsonPath("senha").value(usuarioDTO.getSenha()));
 
     }
+
+    private UsuarioDTO criarUsuarioDTO() {
+        return UsuarioDTO.builder()
+                .nomeRazaoSocial("Lucas Azevedo Souza")
+                .login("50336912870")
+                .cpfCnpj("50336912870")
+                .senha("05/02/2001")
+                .build();
+    }
+
+
 }

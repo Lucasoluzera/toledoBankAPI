@@ -39,7 +39,7 @@ public class AuthenticationController {
 
 
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
-    public ResponseEntity<UsuarioDTO> createAuthenticationToken(@RequestBody UsuarioDTO usuarioDTO) throws Exception {
+    public ResponseEntity<UsuarioDTO> createAuthenticationToken(@RequestBody com.example.toledoBank.api.dto.UsuarioDTO usuarioDTO) throws Exception {
 
         String senhaFront = usuarioDTO.getSenha();
 

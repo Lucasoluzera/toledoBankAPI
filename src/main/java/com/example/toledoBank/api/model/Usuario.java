@@ -25,8 +25,13 @@ public class Usuario implements UserDetails {
     private Long id;
     @Column(name = "login")
     private String login;
+
     @Column(name = "senha")
     private String senha;
+
+    @ManyToOne
+    @JoinColumn(name = "pessoa_id")
+    private Pessoa pessoa;
 
     @Transient
     private String token;

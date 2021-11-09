@@ -24,9 +24,8 @@ public class UsuarioController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    private UsuarioDTO criar(@RequestBody @Valid UsuarioDTO usuarioDTO){
-        Usuario usuario = modelMapper.map(usuarioDTO, Usuario.class);
-        usuario = usuarioService.save(usuario);
-        return modelMapper.map(usuario, UsuarioDTO.class);
+    private com.example.toledoBank.api.dto.UsuarioDTO criar(@RequestBody @Valid UsuarioDTO usuarioDTO){
+
+        return usuarioService.save(usuarioDTO);
     }
 }
