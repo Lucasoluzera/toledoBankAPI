@@ -4,6 +4,7 @@ import com.example.toledoBank.api.model.Endereco;
 import com.example.toledoBank.api.model.Telefone;
 import com.example.toledoBank.api.repository.TelefoneRepository;
 import com.example.toledoBank.api.service.impl.TelefoneServiceImpl;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -73,6 +74,20 @@ public class TelefoneServiceTest {
         assertThat(telefone.getNumero()).isEqualTo(telefoneAlterado.getNumero());
     }
 
+    @Test
+    @DisplayName("Deve retornar erro ao alterar um telefone Nullo")
+    void erroAlterarTelefone() {
+        Telefone telefone = new Telefone();
+
+        Throwable exception = Assertions.catchThrowable(() -> service.update(telefone));
+
+        assertThat(exception)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Telefone não pode ser nullo");
+
+        Mockito.verify(repository, Mockito.never()).save(telefone);
+
+    }
 
     private Telefone criarTelefone() {
         return Telefone.builder()

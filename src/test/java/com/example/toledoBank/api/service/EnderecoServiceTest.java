@@ -1,8 +1,10 @@
 package com.example.toledoBank.api.service;
 
 import com.example.toledoBank.api.model.Endereco;
+import com.example.toledoBank.api.model.Telefone;
 import com.example.toledoBank.api.repository.EnderecoRepository;
 import com.example.toledoBank.api.service.impl.EnderecoServiceImpl;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -78,6 +80,21 @@ public class EnderecoServiceTest {
         assertThat(endereco.getCep()).isEqualTo(enderecoAlterado.getCep());
         assertThat(endereco.getCidade()).isEqualTo(enderecoAlterado.getCidade());
         assertThat(endereco.getEstado()).isEqualTo(enderecoAlterado.getEstado());
+    }
+
+    @Test
+    @DisplayName("Deve retornar erro ao alterar um endereco Nullo")
+    void erroAlterarEndereco() {
+        Endereco endereco = new Endereco();
+
+        Throwable exception = Assertions.catchThrowable(() -> service.update(endereco));
+
+        assertThat(exception)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Endereço não pode ser nullo.");
+
+        Mockito.verify(repository, Mockito.never()).save(endereco);
+
     }
 
     private Endereco criarEndereco() {
