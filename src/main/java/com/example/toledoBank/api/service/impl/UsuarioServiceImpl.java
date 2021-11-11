@@ -1,9 +1,13 @@
 package com.example.toledoBank.api.service.impl;
 
+import com.example.toledoBank.api.dto.PessoaDTO;
 import com.example.toledoBank.api.dto.UsuarioDTO;
+import com.example.toledoBank.api.model.Pessoa;
+import com.example.toledoBank.api.model.Telefone;
 import com.example.toledoBank.api.model.Usuario;
 import com.example.toledoBank.api.repository.UsuarioRepository;
 import com.example.toledoBank.api.service.PessoaService;
+import com.example.toledoBank.api.service.TelefoneService;
 import com.example.toledoBank.api.service.UsuarioService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +28,9 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Autowired
     private PessoaService pessoaService;
 
+    @Autowired
+    private TelefoneService telefoneService;
+
     public UsuarioServiceImpl(UsuarioRepository usuarioRepository, PessoaService pessoaService) {
         this.usuarioRepository = usuarioRepository;
         this.pessoaService = pessoaService;
@@ -34,10 +41,21 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         Usuario usuario = modelMapper.map(usuarioDTO, Usuario.class);
 
-        if (pessoaService.existePorCPF(usuarioDTO.getCpfCnpj()))
-            usuario.setPessoa(this.pessoaService.buscarPorCPF(usuarioDTO.getCpfCnpj()));
-        else
-            throw new RuntimeException("Não existe uma pessoa com esse CPF");
+        if (usuarioDTO.getPessoaDTO() == null)
+        {
+            if(this.pessoaService.existePorCPF(usuarioDTO.getCpfCnpj()))
+                usuario.setPessoa(this.pessoaService.buscarPorCPF(usuarioDTO.getCpfCnpj()));
+            else
+                throw new IllegalArgumentException("Não existe uma pessoa com esse CPF.");
+        }
+        else {
+            if(!this.pessoaService.existePorCPF(usuarioDTO.getPessoaDTO().getCpfCnpj())){
+                this.pessoaService.save(usuarioDTO.getPessoaDTO());
+                usuario.setPessoa(this.pessoaService.buscarPorCPF(usuarioDTO.getCpfCnpj()));
+            }else {
+                usuario.setPessoa(this.pessoaService.buscarPorCPF(usuarioDTO.getCpfCnpj()));
+            }
+        }
 
         usuario.setSenha(new BCryptPasswordEncoder().encode(usuario.getSenha()));
 
@@ -46,6 +64,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         usuarioDTO = modelMapper.map(usuario, UsuarioDTO.class);
         usuarioDTO.setCpfCnpj(usuario.getPessoa().getCpfCnpj());
+        usuarioDTO.setPessoaDTO(modelMapper.map(usuario.getPessoa(), PessoaDTO.class));
 
         return usuarioDTO;
     }

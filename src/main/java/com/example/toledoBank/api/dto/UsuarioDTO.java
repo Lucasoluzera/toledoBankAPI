@@ -14,6 +14,7 @@ public class UsuarioDTO {
     private Long id;
     private String nomeRazaoSocial;
     private String cpfCnpj;
+    private PessoaDTO pessoaDTO;
     private String login;
     private String senha;
     private String token;
