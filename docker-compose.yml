@@ -1,0 +1,20 @@
+version: '3.1'
+services:
+  app:
+    build: ./
+    container_name: toledoBank
+    image: toledoBank
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresqldb:5432/toledoBank
+    depends_on:
+      - postgresqldb
+  postgresqldb:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=toledoBank

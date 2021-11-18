@@ -17,6 +17,7 @@ before_script:
   - sudo cp /etc/postgresql/{10,11}/main/pg_hba.conf
   - sudo service postgresql restart 11
   - export PATH="/usr/lib/postgresql/11/bin:$PATH"
-  - psql -c 'CREATE DATABASE travis_ci_test;' -U postgres
+  - sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'root'"
+  - psql -c 'CREATE DATABASE toledoBank;' -U postgres
 after_success:
   - bash <(curl -s https://codecov.io/bash)
