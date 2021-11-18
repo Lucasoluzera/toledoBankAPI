@@ -19,6 +19,6 @@ before_script:
   - export PATH="/usr/lib/postgresql/11/bin:$PATH"
   - sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'root'"
   - export PGPASSWORD='root'
-  - psql -c 'CREATE DATABASE toledoBank;' -U postgres
+  - psql -c 'CREATE DATABASE toledo_bank;' -U postgres
 after_success:
   - bash <(curl -s https://codecov.io/bash)
