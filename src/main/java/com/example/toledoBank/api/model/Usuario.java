@@ -36,6 +36,10 @@ public class Usuario implements UserDetails {
     @Transient
     private String token;
 
+    @ManyToOne
+    @JoinColumn(name = "conta_id")
+    private Conta conta;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

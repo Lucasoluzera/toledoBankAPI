@@ -1,0 +1,59 @@
+package com.example.toledoBank.api.service.impl;
+
+import com.example.toledoBank.api.dto.ContaOperacoesDTO;
+import com.example.toledoBank.api.model.Conta;
+import com.example.toledoBank.api.repository.ContaRepository;
+import com.example.toledoBank.api.repository.UsuarioRepository;
+import com.example.toledoBank.api.service.ContaService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+
+@Service
+public class ContaServiceImpl implements ContaService {
+
+    @Autowired
+    private ContaRepository contaRepository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    public ContaServiceImpl(ContaRepository contaRepository, UsuarioRepository usuarioRepository) {
+        this.contaRepository = contaRepository;
+        this.usuarioRepository = usuarioRepository;
+    }
+
+    @Override
+    public Conta salvar(Conta conta) {
+        return this.contaRepository.save(conta);
+    }
+
+    @Override
+    public ContaOperacoesDTO sacar(ContaOperacoesDTO contaOperacoesDTO) {
+        Conta conta = contaRepository.findByAgenciaAndNumero(contaOperacoesDTO.getConta().getAgencia(), contaOperacoesDTO.getConta().getNumero());
+        conta.setSaldo(conta.getSaldo().subtract(BigDecimal.valueOf(Long.parseLong(contaOperacoesDTO.getSaldo()))));
+        contaOperacoesDTO.setConta(this.contaRepository.save(conta));
+        return contaOperacoesDTO;
+    }
+
+    @Override
+    public ContaOperacoesDTO depositar(ContaOperacoesDTO contaOperacoesDTO) {
+        Conta conta = contaRepository.findByAgenciaAndNumero(contaOperacoesDTO.getConta().getAgencia(), contaOperacoesDTO.getConta().getNumero());
+        conta.setSaldo(conta.getSaldo().add(BigDecimal.valueOf(Long.parseLong(contaOperacoesDTO.getSaldo()))));
+        contaOperacoesDTO.setConta(this.contaRepository.save(conta));
+        return contaOperacoesDTO;
+    }
+
+    @Override
+    public ContaOperacoesDTO transferir(ContaOperacoesDTO contaOperacoesDTO) {
+        Conta conta = contaRepository.findByAgenciaAndNumero(contaOperacoesDTO.getConta().getAgencia(), contaOperacoesDTO.getConta().getNumero());
+        conta.setSaldo(conta.getSaldo().subtract(BigDecimal.valueOf(Long.parseLong(contaOperacoesDTO.getSaldo()))));
+        contaOperacoesDTO.setConta(this.contaRepository.save(conta));
+
+        Conta contaSecundaria = usuarioRepository.findByLogin(contaOperacoesDTO.getCpfContaSecundaria()).getConta();
+        contaSecundaria.setSaldo(conta.getSaldo().add(BigDecimal.valueOf(Long.parseLong(contaOperacoesDTO.getSaldo()))));
+        this.contaRepository.save(contaSecundaria);
+        return contaOperacoesDTO;
+    }
+}
