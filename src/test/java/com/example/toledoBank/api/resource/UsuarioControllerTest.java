@@ -1,6 +1,7 @@
 package com.example.toledoBank.api.resource;
 
 import com.example.toledoBank.api.dto.UsuarioDTO;
+import com.example.toledoBank.api.model.Conta;
 import com.example.toledoBank.api.seguranca.JwtAuthenticationEntryPoint;
 import com.example.toledoBank.api.service.UsuarioService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,6 +23,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.math.BigDecimal;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -47,10 +50,12 @@ public class UsuarioControllerTest {
     @DisplayName("Deve criar um usuário comum com sucesso.")
     void criarUsuario() throws Exception {
 
-        UsuarioDTO usuarioDTO = criarUsuarioDTO();
+        UsuarioDTO usuarioDTO = criarUsuarioComumDTO();
 
-        UsuarioDTO usuarioDTOSalvo = criarUsuarioDTO();
+        UsuarioDTO usuarioDTOSalvo = criarUsuarioComumDTO();
         usuarioDTOSalvo.setId(1L);
+        usuarioDTOSalvo.setConta(criarContaBuilder());
+        usuarioDTOSalvo.getConta().setId(1L);
 
 
         BDDMockito.given(service.save(Mockito.any(UsuarioDTO.class))).willReturn(usuarioDTOSalvo);
@@ -68,6 +73,8 @@ public class UsuarioControllerTest {
                 .perform(request)
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("id").isNotEmpty())
+                .andExpect(jsonPath("conta.id").isNotEmpty())
+                .andExpect(jsonPath("conta.saldo").value(0))
                 .andExpect( jsonPath("nomeRazaoSocial").value(usuarioDTO.getNomeRazaoSocial()))
                 .andExpect( jsonPath("cpfCnpj").value(usuarioDTO.getCpfCnpj()))
                 .andExpect(jsonPath("login").value(usuarioDTO.getLogin()))
@@ -75,14 +82,22 @@ public class UsuarioControllerTest {
 
     }
 
-    private UsuarioDTO criarUsuarioDTO() {
+    private UsuarioDTO criarUsuarioComumDTO() {
         return UsuarioDTO.builder()
                 .nomeRazaoSocial("Lucas Azevedo Souza")
                 .login("50336912870")
                 .cpfCnpj("50336912870")
                 .senha("05/02/2001")
+                .conta(null)
                 .build();
     }
 
+    private Conta criarContaBuilder() {
+        return Conta.builder()
+                .agencia(12)
+                .numero(1234)
+                .saldo(BigDecimal.valueOf(0))
+                .build();
+    }
 
 }

@@ -6,6 +6,7 @@ import com.example.toledoBank.api.model.Pessoa;
 import com.example.toledoBank.api.model.Telefone;
 import com.example.toledoBank.api.model.Usuario;
 import com.example.toledoBank.api.repository.UsuarioRepository;
+import com.example.toledoBank.api.service.ContaService;
 import com.example.toledoBank.api.service.PessoaService;
 import com.example.toledoBank.api.service.TelefoneService;
 import com.example.toledoBank.api.service.UsuarioService;
@@ -21,7 +22,6 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Autowired
     private final ModelMapper modelMapper = new ModelMapper();
 
-
     @Autowired
     private UsuarioRepository usuarioRepository;
 
@@ -29,11 +29,12 @@ public class UsuarioServiceImpl implements UsuarioService {
     private PessoaService pessoaService;
 
     @Autowired
-    private TelefoneService telefoneService;
+    private ContaService contaService;
 
-    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, PessoaService pessoaService) {
+    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, PessoaService pessoaService, ContaService contaService) {
         this.usuarioRepository = usuarioRepository;
         this.pessoaService = pessoaService;
+        this.contaService = contaService;
     }
 
     @Override
@@ -57,8 +58,11 @@ public class UsuarioServiceImpl implements UsuarioService {
             }
         }
 
-        usuario.setSenha(new BCryptPasswordEncoder().encode(usuario.getSenha()));
 
+        if (!usuarioDTO.getContaAdmin())
+            usuarioDTO.setConta(this.contaService.salvar());
+
+        usuario.setSenha(new BCryptPasswordEncoder().encode(usuario.getSenha()));
         usuario = this.usuarioRepository.save(usuario);
         usuario.setSenha(usuarioDTO.getSenha());
 

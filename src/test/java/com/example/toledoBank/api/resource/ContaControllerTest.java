@@ -3,6 +3,7 @@ package com.example.toledoBank.api.resource;
 
 import com.example.toledoBank.api.dto.ContaOperacoesDTO;
 import com.example.toledoBank.api.model.Conta;
+import com.example.toledoBank.api.model.Usuario;
 import com.example.toledoBank.api.seguranca.JwtAuthenticationEntryPoint;
 import com.example.toledoBank.api.service.ContaService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,34 +48,6 @@ public class ContaControllerTest {
     ContaService service;
 
     @Test
-    @DisplayName("Deve criar uma conta com sucesso.")
-    void criarConta() throws Exception {
-        Conta conta = criarContaBuilder();
-
-        Conta contaSalva = criarContaBuilder();
-
-        contaSalva.setId(1L);
-
-        BDDMockito.given(service.salvar(Mockito.any(Conta.class))).willReturn(contaSalva);
-
-        String json = new ObjectMapper().writeValueAsString(conta);
-
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
-                .post(URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .content(json);
-
-        mvc
-                .perform(request)
-                .andExpect(status().isCreated())
-                .andExpect( jsonPath("id").isNotEmpty())
-                .andExpect(jsonPath("agencia").value(12))
-                .andExpect(jsonPath("numero").value(1234))
-                .andExpect(jsonPath("saldo").value(BigDecimal.valueOf(10.25)));
-    }
-
-    @Test
     @DisplayName("Deve sacar valor com sucesso.")
     void sacarValorConta() throws Exception {
 
@@ -83,9 +56,9 @@ public class ContaControllerTest {
 
         ContaOperacoesDTO contaOperacoesDTOSalvo = criarContaOperacoesDTO();
 
-        contaOperacoesDTOSalvo.getConta().setId(1L);
-        contaOperacoesDTOSalvo.getConta().setSaldo(
-                contaOperacoesDTOSalvo.getConta().getSaldo().subtract(
+        contaOperacoesDTOSalvo.getUsuario().getConta().setId(1L);
+        contaOperacoesDTOSalvo.getUsuario().getConta().setSaldo(
+                contaOperacoesDTOSalvo.getUsuario().getConta().getSaldo().subtract(
                         BigDecimal.valueOf(Double.parseDouble(contaOperacoesDTO.getSaldo()))));
 
         BDDMockito.given(service.sacar(Mockito.any(ContaOperacoesDTO.class))).willReturn(contaOperacoesDTOSalvo);
@@ -101,7 +74,10 @@ public class ContaControllerTest {
         mvc
                 .perform(request)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("conta").isNotEmpty())
+                .andExpect(jsonPath("usuario.conta.id").isNotEmpty())
+                .andExpect(jsonPath("usuario.conta.agencia").value(12))
+                .andExpect(jsonPath("usuario.conta.numero").value(1234))
+                .andExpect(jsonPath("usuario.conta.saldo").value(BigDecimal.valueOf(0.05)))
                 .andExpect(jsonPath("cpfContaSecundaria").value("1111111111"))
                 .andExpect(jsonPath("saldo").value("10.20"));
 
@@ -116,9 +92,9 @@ public class ContaControllerTest {
 
         ContaOperacoesDTO contaOperacoesDTOSalvo = criarContaOperacoesDTO();
 
-        contaOperacoesDTOSalvo.getConta().setId(1L);
-        contaOperacoesDTOSalvo.getConta().setSaldo(
-                contaOperacoesDTOSalvo.getConta().getSaldo().add(
+        contaOperacoesDTOSalvo.getUsuario().getConta().setId(1L);
+        contaOperacoesDTOSalvo.getUsuario().getConta().setSaldo(
+                contaOperacoesDTOSalvo.getUsuario().getConta().getSaldo().add(
                         BigDecimal.valueOf(Double.parseDouble(contaOperacoesDTO.getSaldo()))));
 
         BDDMockito.given(service.depositar(Mockito.any(ContaOperacoesDTO.class))).willReturn(contaOperacoesDTOSalvo);
@@ -135,10 +111,10 @@ public class ContaControllerTest {
         mvc
                 .perform(request)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("conta.id").isNotEmpty())
-                .andExpect(jsonPath("conta.agencia").value(12))
-                .andExpect(jsonPath("conta.numero").value(1234))
-                .andExpect(jsonPath("conta.saldo").value(BigDecimal.valueOf(20.45)))
+                .andExpect(jsonPath("usuario.conta.id").isNotEmpty())
+                .andExpect(jsonPath("usuario.conta.agencia").value(12))
+                .andExpect(jsonPath("usuario.conta.numero").value(1234))
+                .andExpect(jsonPath("usuario.conta.saldo").value(BigDecimal.valueOf(20.45)))
                 .andExpect(jsonPath("cpfContaSecundaria").value("1111111111"))
                 .andExpect(jsonPath("saldo").value("10.20"));
 
@@ -154,7 +130,7 @@ public class ContaControllerTest {
         Conta contaSalva = criarContaBuilder();
         contaSalva.setId(1L);
         contaSalva.setSaldo(contaSalva.getSaldo().subtract(BigDecimal.valueOf(Double.parseDouble(contaOperacoesDTO.getSaldo()))));
-        contaOperacoesDTO.setConta(contaSalva);
+        contaOperacoesDTO.getUsuario().setConta(contaSalva);
 
         BDDMockito.given(service.transferir(Mockito.any(ContaOperacoesDTO.class))).willReturn(contaOperacoesDTO);
 
@@ -170,10 +146,10 @@ public class ContaControllerTest {
         mvc
                 .perform(request)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("conta.id").isNotEmpty())
-                .andExpect(jsonPath("conta.agencia").value(12))
-                .andExpect(jsonPath("conta.numero").value(1234))
-                .andExpect(jsonPath("conta.saldo").value(BigDecimal.valueOf(0.05)))
+                .andExpect(jsonPath("usuario.conta.id").isNotEmpty())
+                .andExpect(jsonPath("usuario.conta.agencia").value(12))
+                .andExpect(jsonPath("usuario.conta.numero").value(1234))
+                .andExpect(jsonPath("usuario.conta.saldo").value(BigDecimal.valueOf(0.05)))
                 .andExpect(jsonPath("cpfContaSecundaria").value("1111111111"))
                 .andExpect(jsonPath("saldo").value("10.20"));
 
@@ -181,7 +157,7 @@ public class ContaControllerTest {
 
     private ContaOperacoesDTO criarContaOperacoesDTO() {
         return ContaOperacoesDTO.builder()
-                .conta(criarContaBuilder())
+                .usuario(criarUsuario())
                 .cpfContaSecundaria("1111111111")
                 .saldo("10.20")
                 .build();
@@ -195,4 +171,13 @@ public class ContaControllerTest {
                 .saldo(BigDecimal.valueOf(10.25))
                 .build();
     }
+
+    private Usuario criarUsuario() {
+        return Usuario.builder()
+                .login("50336912870")
+                .senha("05/02/2001")
+                .conta(criarContaBuilder())
+                .build();
+    }
+
 }

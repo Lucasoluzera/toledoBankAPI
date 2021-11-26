@@ -45,7 +45,7 @@ public class ContaServiceTest {
 
         BDDMockito.given(repository.save(Mockito.any(Conta.class))).willReturn(conta);
 
-        Conta contaSalva = this.service.salvar(conta);
+        Conta contaSalva = this.service.salvar();
 
         assertThat(contaSalva.getId()).isNotNull();
         assertThat(contaSalva.getAgencia()).isEqualTo(12);
@@ -72,8 +72,8 @@ public class ContaServiceTest {
 
         ContaOperacoesDTO contaOperacoesDTOSalva = this.service.sacar(contaOperacoesDTO);
 
-        assertThat(contaOperacoesDTOSalva.getConta().getId()).isNotNull();
-        assertThat(contaOperacoesDTOSalva.getConta().getSaldo()).isEqualTo(BigDecimal.valueOf(5.25));
+        assertThat(contaOperacoesDTOSalva.getUsuario().getConta().getId()).isNotNull();
+        assertThat(contaOperacoesDTOSalva.getUsuario().getConta().getSaldo()).isEqualTo(BigDecimal.valueOf(5.25));
         assertThat(contaOperacoesDTOSalva.getSaldo()).isEqualTo("5");
         assertThat(contaOperacoesDTOSalva.getCpfContaSecundaria()).isEqualTo("1111111111");
     }
@@ -97,8 +97,8 @@ public class ContaServiceTest {
 
         ContaOperacoesDTO contaOperacoesDTOSalva = this.service.depositar(contaOperacoesDTO);
 
-        assertThat(contaOperacoesDTOSalva.getConta().getId()).isNotNull();
-        assertThat(contaOperacoesDTOSalva.getConta().getSaldo()).isEqualTo(BigDecimal.valueOf(15.25));
+        assertThat(contaOperacoesDTOSalva.getUsuario().getConta().getId()).isNotNull();
+        assertThat(contaOperacoesDTOSalva.getUsuario().getConta().getSaldo()).isEqualTo(BigDecimal.valueOf(15.25));
         assertThat(contaOperacoesDTOSalva.getSaldo()).isEqualTo("5");
         assertThat(contaOperacoesDTOSalva.getCpfContaSecundaria()).isEqualTo("1111111111");
     }
@@ -142,8 +142,8 @@ public class ContaServiceTest {
 
         ContaOperacoesDTO contaOperacoesDTOSalva = this.service.transferir(contaOperacoesDTO);
 
-        assertThat(contaOperacoesDTOSalva.getConta().getId()).isNotNull();
-        assertThat(contaOperacoesDTOSalva.getConta().getSaldo()).isEqualTo(BigDecimal.valueOf(5.25));
+        assertThat(contaOperacoesDTOSalva.getUsuario().getConta().getId()).isNotNull();
+        assertThat(contaOperacoesDTOSalva.getUsuario().getConta().getSaldo()).isEqualTo(BigDecimal.valueOf(5.25));
         assertThat(contaOperacoesDTOSalva.getSaldo()).isEqualTo("5");
         assertThat(contaOperacoesDTOSalva.getCpfContaSecundaria()).isEqualTo("1111111111");
     }
@@ -159,9 +159,19 @@ public class ContaServiceTest {
 
     private ContaOperacoesDTO criarContaOperacoesDTO() {
         return ContaOperacoesDTO.builder()
-                .conta(criarContaBuilder())
+                .usuario(criarUsuario())
                 .cpfContaSecundaria("1111111111")
                 .saldo("5")
                 .build();
     }
+
+
+    private Usuario criarUsuario() {
+        return Usuario.builder()
+                .login("50336912870")
+                .senha("05/02/2001")
+                .conta(criarContaBuilder())
+                .build();
+    }
+
 }

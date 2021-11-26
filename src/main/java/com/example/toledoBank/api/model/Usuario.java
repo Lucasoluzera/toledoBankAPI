@@ -40,6 +40,8 @@ public class Usuario implements UserDetails {
     @JoinColumn(name = "conta_id")
     private Conta conta;
 
+    @Column(name = "conta_admin")
+    private Boolean contaAdmin;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

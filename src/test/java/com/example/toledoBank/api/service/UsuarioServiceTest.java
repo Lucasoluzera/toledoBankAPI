@@ -3,6 +3,7 @@ package com.example.toledoBank.api.service;
 import com.example.toledoBank.api.dto.PessoaDTO;
 import com.example.toledoBank.api.dto.UsuarioDTO;
 import com.example.toledoBank.api.enums.TipoPessoa;
+import com.example.toledoBank.api.model.Conta;
 import com.example.toledoBank.api.model.Pessoa;
 import com.example.toledoBank.api.model.Usuario;
 import com.example.toledoBank.api.repository.UsuarioRepository;
@@ -19,6 +20,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,31 +37,41 @@ public class UsuarioServiceTest {
     @MockBean
     PessoaService pessoaService;
 
+    @MockBean
+    ContaService contaService;
+
     @BeforeEach
     public void setUp() {
-        this.service = new UsuarioServiceImpl(this.repository, this.pessoaService);
+        this.service = new UsuarioServiceImpl(this.repository, this.pessoaService, this.contaService);
     }
 
     @Test
-    @DisplayName("Deve salvar um usuário com sucesso quando tiver o CPF")
+    @DisplayName("Deve salvar um usuário comum com sucesso quando tiver o CPF")
     void salvarUsuarioPorCPF() {
-        UsuarioDTO usuarioDTO = criarUsuarioDTO();
+        UsuarioDTO usuarioDTO = criarUsuarioComumDTO();
         usuarioDTO.setPessoaDTO(null);
+        usuarioDTO.setContaAdmin(false);
         String senha = new BCryptPasswordEncoder().encode(usuarioDTO.getSenha());
 
-        Usuario usuario = Usuario
+        Usuario usuarioSalvo = Usuario
                 .builder()
                 .id(1L)
                 .senha(senha)
                 .login("50336912870")
+                .contaAdmin(false)
+                .conta(criarConta())
                 .pessoa(criarPessoaObj())
                 .build();
+
+        Conta contaSalva = criarConta();
 
 
         Pessoa pessoaSalva = criarPessoaObj();
         pessoaSalva.setId(1L);
 
-        BDDMockito.given(repository.save(Mockito.any(Usuario.class))).willReturn(usuario);
+        BDDMockito.given(repository.save(Mockito.any(Usuario.class))).willReturn(usuarioSalvo);
+
+        BDDMockito.given(contaService.salvar()).willReturn(contaSalva);
 
         BDDMockito.given(pessoaService.buscarPorCPF(Mockito.any(String.class))).willReturn(pessoaSalva);
 
@@ -72,24 +84,27 @@ public class UsuarioServiceTest {
         assertThat(usuarioDTOSalvo.getLogin()).isEqualTo("50336912870");
         assertThat(usuarioDTOSalvo.getCpfCnpj()).isEqualTo("50336912870");
         assertThat(usuarioDTOSalvo.getSenha()).isEqualTo("05/02/2001");
+        assertThat(usuarioDTOSalvo.getConta().getSaldo()).isNotNull();
+        assertThat(usuarioDTOSalvo.getConta().getId()).isNotNull();
         assertThat(pessoaSalva.getId()).isNotNull();
     }
 
+    private Conta criarConta() {
+        return Conta.builder()
+                .id(1L)
+                .saldo(BigDecimal.ZERO)
+                .agencia(1)
+                .build();
+    }
+
     @Test
-    @DisplayName("Deve salvar um usuário com sucesso quando tiver a pessoa")
+    @DisplayName("Deve salvar um usuário comum com sucesso quando tiver a pessoa")
     void salvarUsuarioComPessoa() {
-        UsuarioDTO usuarioDTO = criarUsuarioDTO();
+        UsuarioDTO usuarioDTO = criarUsuarioComumDTO();
 
         String senha = new BCryptPasswordEncoder().encode(usuarioDTO.getSenha());
 
-        Usuario usuarioSalvo = Usuario
-                .builder()
-                .id(1L)
-                .senha(senha)
-                .login("50336912870")
-                .pessoa(criarPessoaObj())
-                .build();
-
+        Conta contaSalva = criarConta();
 
         PessoaDTO pessoaSalvaDTO = criarPessoaDTO();
         pessoaSalvaDTO.setId(1L);
@@ -97,7 +112,15 @@ public class UsuarioServiceTest {
         Pessoa pessoaSalva = criarPessoaObj();
         pessoaSalva.setId(1L);
 
-        usuarioSalvo.setPessoa(pessoaSalva);
+        Usuario usuarioSalvo = Usuario
+                .builder()
+                .id(1L)
+                .senha(senha)
+                .login("50336912870")
+                .conta(contaSalva)
+                .contaAdmin(false)
+                .pessoa(pessoaSalva)
+                .build();
 
         BDDMockito.given(repository.save(Mockito.any(Usuario.class))).willReturn(usuarioSalvo);
 
@@ -105,19 +128,23 @@ public class UsuarioServiceTest {
 
         BDDMockito.given(pessoaService.buscarPorCPF(Mockito.any(String.class))).willReturn(pessoaSalva);
 
+        BDDMockito.given(contaService.salvar()).willReturn(contaSalva);
+
         UsuarioDTO usuarioDTOSalvo = service.save(usuarioDTO);
 
         assertThat(usuarioDTOSalvo.getId()).isNotNull();
         assertThat(usuarioDTOSalvo.getPessoaDTO().getId()).isNotNull();
         assertThat(usuarioDTOSalvo.getLogin()).isEqualTo("50336912870");
         assertThat(usuarioDTOSalvo.getCpfCnpj()).isEqualTo("50336912870");
+        assertThat(usuarioDTOSalvo.getConta().getSaldo()).isEqualTo(BigDecimal.ZERO);
+        assertThat(usuarioDTOSalvo.getConta().getId()).isNotNull();
         assertThat(usuarioDTOSalvo.getSenha()).isEqualTo("05/02/2001");
-     }
+    }
 
     @Test
     @DisplayName("Não deve salvar um usuário caso não tenha pessoa ou CPF encontrado.")
     void naoDeveSalvarUsuarioSemPessoa() {
-        UsuarioDTO usuarioDTO = criarUsuarioDTO();
+        UsuarioDTO usuarioDTO = criarUsuarioComumDTO();
 
         usuarioDTO.setCpfCnpj(null);
         usuarioDTO.setPessoaDTO(null);
@@ -136,12 +163,13 @@ public class UsuarioServiceTest {
 
     }
 
-    private UsuarioDTO criarUsuarioDTO() {
+    private UsuarioDTO criarUsuarioComumDTO() {
         return UsuarioDTO.builder()
                 .nomeRazaoSocial("Lucas Azevedo Souza")
                 .login("50336912870")
                 .cpfCnpj("50336912870")
                 .senha("05/02/2001")
+                .contaAdmin(false)
                 .pessoaDTO(criarPessoaDTO())
                 .build();
     }

@@ -1,0 +1,1 @@
+ALTER TABLE usuario add column if not exists conta_admin boolean
