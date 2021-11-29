@@ -8,7 +8,7 @@ import com.example.toledoBank.api.model.Telefone;
 public interface PessoaService {
 
 
-    PessoaDTO save(PessoaDTO pessoaDTO);
+    PessoaDTO salvar(PessoaDTO pessoaDTO);
 
     Telefone salvarTelefone(String telefone);
 
@@ -17,4 +17,8 @@ public interface PessoaService {
     Pessoa buscarPorCPF(String cpf);
 
     Boolean existePorCPF(String cpf);
+
+    PessoaDTO alterar(Long id, PessoaDTO pessoaDTO);
+
+    Boolean excluir(Long id);
 }

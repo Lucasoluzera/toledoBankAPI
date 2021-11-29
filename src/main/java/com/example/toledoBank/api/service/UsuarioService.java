@@ -7,4 +7,10 @@ public interface UsuarioService {
 
 
     UsuarioDTO save(UsuarioDTO usuario);
+
+    UsuarioDTO alterar(Long id, UsuarioDTO usuarioDTO);
+
+    Boolean excluir(Long id);
+
+    Usuario usuarioLogado();
 }

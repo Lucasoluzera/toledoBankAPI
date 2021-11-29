@@ -66,7 +66,7 @@ public class PessoaServiceTest {
         BDDMockito.given(enderecoService.save(Mockito.any(Endereco.class))).willReturn(endereco);
         BDDMockito.given(repository.save(Mockito.any(Pessoa.class))).willReturn(pessoa);
 
-        PessoaDTO pessoaSalva = pessoaService.save(pessoaDTO);
+        PessoaDTO pessoaSalva = pessoaService.salvar(pessoaDTO);
 
         assertThat(pessoaSalva.getId()).isNotNull();
         assertThat(pessoaSalva.getNomeRazaoSocial()).isEqualTo("Lucas Azevedo Souza");

@@ -124,7 +124,7 @@ public class UsuarioServiceTest {
 
         BDDMockito.given(repository.save(Mockito.any(Usuario.class))).willReturn(usuarioSalvo);
 
-        BDDMockito.given(pessoaService.save(Mockito.any(PessoaDTO.class))).willReturn(pessoaSalvaDTO);
+        BDDMockito.given(pessoaService.salvar(Mockito.any(PessoaDTO.class))).willReturn(pessoaSalvaDTO);
 
         BDDMockito.given(pessoaService.buscarPorCPF(Mockito.any(String.class))).willReturn(pessoaSalva);
 

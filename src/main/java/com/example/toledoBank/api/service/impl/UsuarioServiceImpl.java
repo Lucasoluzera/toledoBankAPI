@@ -2,16 +2,15 @@ package com.example.toledoBank.api.service.impl;
 
 import com.example.toledoBank.api.dto.PessoaDTO;
 import com.example.toledoBank.api.dto.UsuarioDTO;
-import com.example.toledoBank.api.model.Pessoa;
-import com.example.toledoBank.api.model.Telefone;
 import com.example.toledoBank.api.model.Usuario;
 import com.example.toledoBank.api.repository.UsuarioRepository;
+import com.example.toledoBank.api.resource.AuthenticationController;
 import com.example.toledoBank.api.service.ContaService;
 import com.example.toledoBank.api.service.PessoaService;
-import com.example.toledoBank.api.service.TelefoneService;
 import com.example.toledoBank.api.service.UsuarioService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -51,7 +50,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         }
         else {
             if(!this.pessoaService.existePorCPF(usuarioDTO.getPessoaDTO().getCpfCnpj())){
-                this.pessoaService.save(usuarioDTO.getPessoaDTO());
+                this.pessoaService.salvar(usuarioDTO.getPessoaDTO());
                 usuario.setPessoa(this.pessoaService.buscarPorCPF(usuarioDTO.getCpfCnpj()));
             }else {
                 usuario.setPessoa(this.pessoaService.buscarPorCPF(usuarioDTO.getCpfCnpj()));
@@ -71,6 +70,24 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuarioDTO.setPessoaDTO(modelMapper.map(usuario.getPessoa(), PessoaDTO.class));
 
         return usuarioDTO;
+    }
+
+
+
+
+    @Override
+    public UsuarioDTO alterar(Long id, UsuarioDTO usuarioDTO) {
+        return null;
+    }
+
+    @Override
+    public Boolean excluir(Long id) {
+        return null;
+    }
+
+    @Override
+    public Usuario usuarioLogado() {
+        return usuarioRepository.findByLogin(SecurityContextHolder.getContext().getAuthentication().getName());
     }
 
 }

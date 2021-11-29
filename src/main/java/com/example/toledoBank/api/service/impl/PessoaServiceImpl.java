@@ -36,7 +36,7 @@ public class PessoaServiceImpl implements PessoaService {
     }
 
     @Override
-    public PessoaDTO save(PessoaDTO pessoaDTO) {
+    public PessoaDTO salvar(PessoaDTO pessoaDTO) {
 
         Pessoa pessoa = modelMapper.map(pessoaDTO, Pessoa.class);
         pessoa.setTelefone(this.salvarTelefone(pessoaDTO.getTelefoneDTO()));
@@ -72,4 +72,15 @@ public class PessoaServiceImpl implements PessoaService {
     public Boolean existePorCPF(String cpf) {
         return pessoaRepository.existsByCpfCnpj(cpf);
     }
+
+    @Override
+    public PessoaDTO alterar(Long id, PessoaDTO pessoaDTO) {
+        return null;
+    }
+
+    @Override
+    public Boolean excluir(Long id) {
+        return null;
+    }
+
 }

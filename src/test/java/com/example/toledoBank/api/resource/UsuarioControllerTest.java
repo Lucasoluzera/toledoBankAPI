@@ -1,7 +1,12 @@
 package com.example.toledoBank.api.resource;
 
+import com.example.toledoBank.api.dto.PessoaDTO;
 import com.example.toledoBank.api.dto.UsuarioDTO;
+import com.example.toledoBank.api.enums.TipoPessoa;
 import com.example.toledoBank.api.model.Conta;
+import com.example.toledoBank.api.model.Endereco;
+import com.example.toledoBank.api.model.Pessoa;
+import com.example.toledoBank.api.model.Usuario;
 import com.example.toledoBank.api.seguranca.JwtAuthenticationEntryPoint;
 import com.example.toledoBank.api.service.UsuarioService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,6 +30,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -80,6 +86,129 @@ public class UsuarioControllerTest {
                 .andExpect(jsonPath("login").value(usuarioDTO.getLogin()))
                 .andExpect(jsonPath("senha").value(usuarioDTO.getSenha()));
 
+    }
+
+    @Test
+    @DisplayName("Deve Alterar um Usuario com sucesso.")
+    void alterarUsuario() throws Exception {
+        Long id = 1L;
+
+        PessoaDTO pessoaSalva = PessoaDTO.builder()
+                .id(id)
+                .nomeRazaoSocial("teste")
+                .cpfCnpj("50336912870")
+                .dataNascAbertura(LocalDate.of(2001, 2, 5).toString())
+                .tipoPessoa(TipoPessoa.FISICA)
+                .endereco(null)
+                .telefoneDTO("18996230715")
+                .build();
+
+
+        UsuarioDTO usuarioDTO = UsuarioDTO.builder()
+                .id(id)
+                .conta(criarContaBuilder())
+                .login("teste")
+                .pessoaDTO(pessoaSalva)
+                .build();
+
+        UsuarioDTO usuarioDTOSalvo = criarUsuarioComumDTO();
+        usuarioDTOSalvo.setConta(criarContaBuilder());
+        usuarioDTOSalvo.setLogin("teste");
+        usuarioDTOSalvo.setPessoaDTO(pessoaSalva);
+        usuarioDTOSalvo.setId(id);
+
+        BDDMockito.given(service.alterar(id, usuarioDTO)).willReturn(usuarioDTOSalvo);
+
+        BDDMockito.given(service.usuarioLogado()).willReturn(
+                Usuario.builder().contaAdmin(true).id(1L).build());
+
+
+        String json = new ObjectMapper().writeValueAsString(usuarioDTO);
+
+        String URL_ALTERAR = URL.concat("/").concat(id.toString());
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .put(URL_ALTERAR)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json);
+
+        mvc
+                .perform(request)
+                .andExpect(status().isOk())
+                .andExpect( jsonPath("id").isNotEmpty())
+                .andExpect( jsonPath("login").value(usuarioDTO.getLogin()))
+                .andExpect( jsonPath("pessoaDTO.nomeRazaoSocial").value(usuarioDTO.getPessoaDTO().getNomeRazaoSocial()));
+
+    }
+
+    @Test
+    @DisplayName("Não deve alterar um usuário sem Permissão." )
+    void naoDeveAlterarUsuarioSemPermissao() throws Exception {
+        Long id = 1L;
+
+        UsuarioDTO usuarioDTO = UsuarioDTO.builder()
+                .id(id)
+                .nomeRazaoSocial("teste")
+                .build();
+
+        BDDMockito.given(service.usuarioLogado()).willReturn(
+                Usuario.builder().contaAdmin(false).pessoa(Pessoa.builder().id(0L).build()).build());
+
+        String json = new ObjectMapper().writeValueAsString(usuarioDTO);
+
+        String URL_ALTERAR = URL.concat("/").concat(id.toString());
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .put(URL_ALTERAR)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json);
+
+        mvc
+                .perform(request)
+                .andExpect(status().isBadRequest())
+                .andExpect( jsonPath("error").value("Acesso Negado"));
+    }
+
+    @Test
+    @DisplayName("Deve excluir um usuario existente.")
+    void excluirUsuario() throws Exception {
+        Long id = 1L;
+
+        BDDMockito.given(service.excluir(id)).willReturn(true);
+        BDDMockito.given(service.usuarioLogado()).willReturn(
+                Usuario.builder().contaAdmin(true).id(1L).build());
+
+
+
+        String URL_EXCLUIR = URL.concat("/").concat(id.toString());
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .delete(URL_EXCLUIR);
+
+        mvc
+                .perform(request)
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Não deve excluir um usuário sem Permissão.")
+    void naoDeveExcluirUsuario() throws Exception {
+        Long id = 1L;
+
+        BDDMockito.given(service.usuarioLogado()).willReturn(
+                Usuario.builder().contaAdmin(false).id(0L).build());
+
+        String URL_EXCLUIR = URL.concat("/").concat(id.toString());
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .delete(URL_EXCLUIR);
+
+        mvc
+                .perform(request)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("error").value("Acesso Negado"));
     }
 
     private UsuarioDTO criarUsuarioComumDTO() {
