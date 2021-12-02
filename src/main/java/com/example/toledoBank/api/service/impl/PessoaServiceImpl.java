@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Service
 public class PessoaServiceImpl implements PessoaService {
@@ -74,13 +75,46 @@ public class PessoaServiceImpl implements PessoaService {
     }
 
     @Override
-    public PessoaDTO alterar(Long id, PessoaDTO pessoaDTO) {
-        return null;
+    public PessoaDTO alterar(PessoaDTO pessoaDTO) {
+        Pessoa pessoa = modelMapper.map(pessoaDTO, Pessoa.class);
+
+        if(pessoaRepository.findById(pessoaDTO.getId()).isPresent()){
+            Pessoa pessoaBanco =  pessoaRepository.findById(pessoaDTO.getId()).get();
+
+            Telefone telefone =
+                    Telefone.builder()
+                    .id(pessoaBanco.getTelefone().getId())
+                    .numero(pessoaDTO.getTelefoneDTO())
+                    .build();
+
+            Endereco endereco = pessoa.getEndereco();
+            endereco.setId(pessoaBanco.getEndereco().getId());
+
+            this.enderecoService.update(endereco);
+            this.telefoneService.update(telefone);
+
+            pessoa.setTelefone(telefone);
+            pessoa.setEndereco(endereco);
+
+            pessoa = this.pessoaRepository.save(pessoa);
+
+            pessoaDTO = modelMapper.map(pessoa, PessoaDTO.class);
+
+            pessoaDTO.setTelefoneDTO(pessoa.getTelefone().getNumero());
+
+            return pessoaDTO;
+        }
+        throw new RuntimeException("Id não encontrado");
     }
 
     @Override
-    public Boolean excluir(Long id) {
-        return null;
+    public void excluir(Long id) {
+        pessoaRepository.deleteById(id);
+    }
+
+    @Override
+    public Optional<Pessoa> buscarPessoaId(Long id) {
+        return this.pessoaRepository.findById(id);
     }
 
 }

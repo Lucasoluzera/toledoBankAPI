@@ -31,9 +31,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Optional;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
@@ -117,7 +117,9 @@ public class UsuarioControllerTest {
         usuarioDTOSalvo.setPessoaDTO(pessoaSalva);
         usuarioDTOSalvo.setId(id);
 
-        BDDMockito.given(service.alterar(id, usuarioDTO)).willReturn(usuarioDTOSalvo);
+        BDDMockito.given(service.buscarUsuarioId(usuarioDTO.getId())).willReturn(Optional.of(Usuario.builder().id(id).build()));
+
+        BDDMockito.given(service.alterar(usuarioDTO)).willReturn(usuarioDTOSalvo);
 
         BDDMockito.given(service.usuarioLogado()).willReturn(
                 Usuario.builder().contaAdmin(true).id(1L).build());
@@ -168,7 +170,38 @@ public class UsuarioControllerTest {
         mvc
                 .perform(request)
                 .andExpect(status().isBadRequest())
-                .andExpect( jsonPath("error").value("Acesso Negado"));
+                .andExpect(content().string("Usuario sem permissao"));
+    }
+
+    @Test
+    @DisplayName("Não deve alterar um usuário sem Permissão." )
+    void naoDeveAlterarUsuarioInexistente() throws Exception {
+        Long id = 1L;
+
+        UsuarioDTO usuarioDTO = UsuarioDTO.builder()
+                .id(id)
+                .nomeRazaoSocial("teste")
+                .build();
+
+        BDDMockito.given(service.usuarioLogado()).willReturn(
+                Usuario.builder().contaAdmin(true).id(1L).build());
+
+        BDDMockito.given(service.buscarUsuarioId(usuarioDTO.getId())).willReturn(Optional.empty());
+
+        String json = new ObjectMapper().writeValueAsString(usuarioDTO);
+
+        String URL_ALTERAR = URL.concat("/").concat(id.toString());
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .put(URL_ALTERAR)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json);
+
+        mvc
+                .perform(request)
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Usuario nao existe"));
     }
 
     @Test
@@ -176,10 +209,10 @@ public class UsuarioControllerTest {
     void excluirUsuario() throws Exception {
         Long id = 1L;
 
-        BDDMockito.given(service.excluir(id)).willReturn(true);
         BDDMockito.given(service.usuarioLogado()).willReturn(
                 Usuario.builder().contaAdmin(true).id(1L).build());
 
+        BDDMockito.given(service.buscarUsuarioId(id)).willReturn(Optional.of(Usuario.builder().id(id).build()));
 
 
         String URL_EXCLUIR = URL.concat("/").concat(id.toString());
@@ -208,7 +241,7 @@ public class UsuarioControllerTest {
         mvc
                 .perform(request)
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error").value("Acesso Negado"));
+                .andExpect(content().string("Acesso Negado"));
     }
 
     private UsuarioDTO criarUsuarioComumDTO() {

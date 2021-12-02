@@ -5,6 +5,7 @@ import com.example.toledoBank.api.dto.UsuarioDTO;
 import com.example.toledoBank.api.enums.TipoPessoa;
 import com.example.toledoBank.api.model.Conta;
 import com.example.toledoBank.api.model.Pessoa;
+import com.example.toledoBank.api.model.Telefone;
 import com.example.toledoBank.api.model.Usuario;
 import com.example.toledoBank.api.repository.UsuarioRepository;
 import com.example.toledoBank.api.service.impl.UsuarioServiceImpl;
@@ -22,6 +23,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -163,6 +165,39 @@ public class UsuarioServiceTest {
 
     }
 
+    @Test
+    @DisplayName("Deve alterar um usuário")
+    void name() {
+        Long id = 1L;
+        UsuarioDTO usuarioDTO = UsuarioDTO.builder()
+                .id(id)
+                .login("Teste")
+                .pessoaDTO(PessoaDTO.builder().cpfCnpj("111").build())
+                .build();
+
+        BDDMockito.given(repository.save(Mockito.any(Usuario.class))).willReturn(
+                Usuario.builder()
+                        .id(id)
+                        .conta(Conta.builder().id(id).build())
+                        .pessoa(Pessoa.builder().id(id).cpfCnpj("111").build())
+                        .login("Teste")
+                        .build());
+
+        BDDMockito.given(pessoaService.alterar(Mockito.any(PessoaDTO.class)))
+                .willReturn(PessoaDTO.builder().id(id).build());
+
+        BDDMockito.given(repository.findById(Mockito.anyLong()))
+                .willReturn(Optional.of(Usuario.builder().id(id).pessoa(Pessoa.builder().id(id).build()).build()));
+
+        UsuarioDTO usuarioDTOSalvo = service.alterar(usuarioDTO);
+
+        assertThat(usuarioDTOSalvo.getId()).isNotNull();
+        assertThat(usuarioDTOSalvo.getPessoaDTO().getId()).isNotNull();
+        assertThat(usuarioDTOSalvo.getConta().getId()).isNotNull();
+        assertThat(usuarioDTO.getLogin()).isEqualTo(usuarioDTOSalvo.getLogin());
+
+    }
+
     private UsuarioDTO criarUsuarioComumDTO() {
         return UsuarioDTO.builder()
                 .nomeRazaoSocial("Lucas Azevedo Souza")
@@ -181,7 +216,7 @@ public class UsuarioServiceTest {
                 .dataNascAbertura(LocalDate.of(2001, 2, 5))
                 .tipoPessoa(TipoPessoa.FISICA)
                 .endereco(null)
-                .telefone(null)
+                .telefone(Telefone.builder().numero("18996230715").build())
                 .build();
     }
 

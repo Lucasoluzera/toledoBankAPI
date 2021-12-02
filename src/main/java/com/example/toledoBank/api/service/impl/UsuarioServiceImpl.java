@@ -2,9 +2,9 @@ package com.example.toledoBank.api.service.impl;
 
 import com.example.toledoBank.api.dto.PessoaDTO;
 import com.example.toledoBank.api.dto.UsuarioDTO;
+import com.example.toledoBank.api.model.Pessoa;
 import com.example.toledoBank.api.model.Usuario;
 import com.example.toledoBank.api.repository.UsuarioRepository;
-import com.example.toledoBank.api.resource.AuthenticationController;
 import com.example.toledoBank.api.service.ContaService;
 import com.example.toledoBank.api.service.PessoaService;
 import com.example.toledoBank.api.service.UsuarioService;
@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class UsuarioServiceImpl implements UsuarioService {
@@ -65,6 +67,43 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario = this.usuarioRepository.save(usuario);
         usuario.setSenha(usuarioDTO.getSenha());
 
+        return converterDTO(usuarioDTO, usuario);
+    }
+
+
+
+
+    @Override
+    public UsuarioDTO alterar(UsuarioDTO usuarioDTO) {
+        Usuario usuario = modelMapper.map(usuarioDTO, Usuario.class);
+
+        if(usuarioRepository.findById(usuarioDTO.getId()).isPresent()){
+            Usuario usuarioBanco =  usuarioRepository.findById(usuarioDTO.getId()).get();
+
+
+            Pessoa pessoa = usuario.getPessoa();
+            pessoa.setId(usuarioBanco.getPessoa().getId());
+
+            PessoaDTO pessoaDTO = modelMapper.map(pessoa, PessoaDTO.class);
+
+            if(pessoa.getTelefone() != null)
+                pessoaDTO.setTelefoneDTO(pessoa.getTelefone().getNumero());
+
+            this.pessoaService.alterar(pessoaDTO);
+
+            usuario.setPessoa(pessoa);
+            if(usuario.getSenha() != null)
+                usuario.setSenha(new BCryptPasswordEncoder().encode(usuario.getSenha()));
+            usuario = this.usuarioRepository.save(usuario);
+            usuario.setSenha(usuarioDTO.getSenha());
+
+            return converterDTO(usuarioDTO, usuario);
+        }
+        throw new RuntimeException("Id não encontrado");
+    }
+
+    private UsuarioDTO converterDTO(UsuarioDTO usuarioDTO, Usuario usuario) {
+
         usuarioDTO = modelMapper.map(usuario, UsuarioDTO.class);
         usuarioDTO.setCpfCnpj(usuario.getPessoa().getCpfCnpj());
         usuarioDTO.setPessoaDTO(modelMapper.map(usuario.getPessoa(), PessoaDTO.class));
@@ -72,22 +111,19 @@ public class UsuarioServiceImpl implements UsuarioService {
         return usuarioDTO;
     }
 
-
-
-
     @Override
-    public UsuarioDTO alterar(Long id, UsuarioDTO usuarioDTO) {
-        return null;
-    }
-
-    @Override
-    public Boolean excluir(Long id) {
-        return null;
+    public void excluir(Long id) {
+        usuarioRepository.deleteById(id);
     }
 
     @Override
     public Usuario usuarioLogado() {
         return usuarioRepository.findByLogin(SecurityContextHolder.getContext().getAuthentication().getName());
+    }
+
+    @Override
+    public Optional<Usuario> buscarUsuarioId(Long id) {
+        return usuarioRepository.findById(id);
     }
 
 }

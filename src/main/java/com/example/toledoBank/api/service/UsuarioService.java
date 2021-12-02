@@ -3,14 +3,18 @@ package com.example.toledoBank.api.service;
 import com.example.toledoBank.api.dto.UsuarioDTO;
 import com.example.toledoBank.api.model.Usuario;
 
+import java.util.Optional;
+
 public interface UsuarioService {
 
 
     UsuarioDTO save(UsuarioDTO usuario);
 
-    UsuarioDTO alterar(Long id, UsuarioDTO usuarioDTO);
+    UsuarioDTO alterar(UsuarioDTO usuarioDTO);
 
-    Boolean excluir(Long id);
+    void excluir(Long id);
 
     Usuario usuarioLogado();
+
+    Optional<Usuario> buscarUsuarioId(Long id);
 }

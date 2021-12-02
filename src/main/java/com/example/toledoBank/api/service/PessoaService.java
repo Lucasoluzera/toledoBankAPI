@@ -5,6 +5,8 @@ import com.example.toledoBank.api.model.Endereco;
 import com.example.toledoBank.api.model.Pessoa;
 import com.example.toledoBank.api.model.Telefone;
 
+import java.util.Optional;
+
 public interface PessoaService {
 
 
@@ -18,7 +20,9 @@ public interface PessoaService {
 
     Boolean existePorCPF(String cpf);
 
-    PessoaDTO alterar(Long id, PessoaDTO pessoaDTO);
+    PessoaDTO alterar(PessoaDTO pessoaDTO);
 
-    Boolean excluir(Long id);
+    void excluir(Long id);
+
+    Optional<Pessoa> buscarPessoaId(Long id);
 }

@@ -1,6 +1,7 @@
 package com.example.toledoBank.api.resource;
 
 
+import com.example.toledoBank.api.dto.ErrorDTO;
 import com.example.toledoBank.api.dto.UsuarioDTO;
 import com.example.toledoBank.api.model.Usuario;
 import com.example.toledoBank.api.service.UsuarioService;
@@ -41,29 +42,31 @@ public class UsuarioController {
     private ResponseEntity<?> excluir(@PathVariable Long id) throws JsonProcessingException {
 
         if(!this.usuarioService.usuarioLogado().getContaAdmin() && !Objects.equals(this.usuarioService.usuarioLogado().getId(), id)){
-            Map<String,String> map = new HashMap<>();
-            map.put("error", "Acesso Negado");
-            String json = new ObjectMapper().writeValueAsString(map);
-            return ResponseEntity.badRequest().body(json);
+            return ResponseEntity.badRequest().body("Acesso Negado");
         }
 
-        Map<String,String> map = new HashMap<>();
-        map.put("sucesso", "Usuário excluído");
-        String json = new ObjectMapper().writeValueAsString(map);
-        return  ResponseEntity.status(200).body(usuarioService.excluir(id));
+        if(usuarioService.buscarUsuarioId(id).isPresent()){
+            usuarioService.excluir(id);
+            return  ResponseEntity.status(200).body("sucesso");
+        }else{
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario nao existe");
+        }
+
     }
 
     @PutMapping("/{id}")
     @CrossOrigin
     private ResponseEntity<?> alterar(@PathVariable Long id, @RequestBody UsuarioDTO usuarioDTO) throws JsonProcessingException {
 
-        if(!this.usuarioService.usuarioLogado().getContaAdmin() && !Objects.equals(this.usuarioService.usuarioLogado().getId(), id)){
-            Map<String,String> map = new HashMap<>();
-            map.put("error", "Acesso Negado");
-            String json = new ObjectMapper().writeValueAsString(map);
-            return ResponseEntity.badRequest().body(json);
+        if (!this.usuarioService.usuarioLogado().getContaAdmin() && !Objects.equals(this.usuarioService.usuarioLogado().getId(), id)) {
+            return ResponseEntity.badRequest().body("Usuario sem permissao");
         }
 
-        return ResponseEntity.ok(usuarioService.alterar(id, usuarioDTO));
+        if(usuarioService.buscarUsuarioId(id).isPresent()){
+            usuarioDTO.setId(id);
+            return ResponseEntity.ok().body(usuarioService.alterar(usuarioDTO));
+        }else{
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario nao existe");
+        }
     }
 }

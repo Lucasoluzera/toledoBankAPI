@@ -15,6 +15,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
+import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -31,9 +32,9 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
@@ -118,7 +119,9 @@ public class PessoaControllerTest {
                 .telefoneDTO("18996230715")
                 .build();
 
-        BDDMockito.given(service.alterar(id, pessoaDTO)).willReturn(pessoaSalva);
+        BDDMockito.given(service.buscarPessoaId(BDDMockito.anyLong())).willReturn(Optional.of(Pessoa.builder().id(1L).build()));
+
+        BDDMockito.given(service.alterar(BDDMockito.any(PessoaDTO.class))).willReturn(pessoaSalva);
 
         BDDMockito.given(usuarioService.usuarioLogado()).willReturn(
                 Usuario.builder().contaAdmin(true).pessoa(Pessoa.builder().id(1L).build()).build());
@@ -171,8 +174,64 @@ public class PessoaControllerTest {
         mvc
                 .perform(request)
                 .andExpect(status().isBadRequest())
-                .andExpect( jsonPath("error").value("Acesso Negado"));
+                .andExpect(content().string("Acesso negado"));
     }
+
+    @Test
+    @DisplayName("Não deve alterar uma pessoa sem Existir." )
+    void erroAlterarPessoaSemExistir() throws Exception {
+        Long id = 1L;
+
+        PessoaDTO pessoaDTO = PessoaDTO.builder()
+                .id(id)
+                .endereco(null)
+                .tipoPessoa(TipoPessoa.FISICA)
+                .nomeRazaoSocial("teste")
+                .build();
+
+        BDDMockito.given(usuarioService.usuarioLogado()).willReturn(
+                Usuario.builder().contaAdmin(true).pessoa(Pessoa.builder().id(0L).build()).build());
+
+        BDDMockito.given(service.buscarPessoaId(pessoaDTO.getId())).willReturn(Optional.empty());
+
+
+        String json = new ObjectMapper().writeValueAsString(pessoaDTO);
+
+        String URL_ALTERAR_ERROR = URL.concat("/").concat(id.toString());
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .put(URL_ALTERAR_ERROR)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json);
+
+        mvc
+                .perform(request)
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Pessoa inexistente"));
+    }
+
+    @Test
+    @DisplayName("Deve excluir um pessoa existente.")
+    void excluirPessoa() throws Exception {
+        Long id = 1L;
+
+//        BDDMockito.when(service.buscarPessoaId(BDDMockito.anyLong())).thenReturn(Optional.of(Pessoa.builder().id(id).nomeRazaoSocial("teste").build()));
+
+        BDDMockito.given(usuarioService.usuarioLogado()).willReturn(
+                Usuario.builder().contaAdmin(true).pessoa(Pessoa.builder().id(0L).build()).build());
+
+
+        String URL_EXCLUIR = URL.concat("/").concat(id.toString());
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .delete(URL_EXCLUIR);
+
+        mvc
+                .perform(request)
+                .andExpect(status().isOk());
+    }
+
 
 
     private Endereco criarEndereco() {

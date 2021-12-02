@@ -39,13 +39,32 @@ public class PessoaController {
     private ResponseEntity<?> atualizar(@PathVariable Long id , @RequestBody PessoaDTO pessoaDTO) throws JsonProcessingException {
 
         if(!this.usuarioService.usuarioLogado().getContaAdmin() && !Objects.equals(this.usuarioService.usuarioLogado().getPessoa().getId(), id)){
-            Map<String,String> map = new HashMap<>();
-            map.put("error", "Acesso Negado");
-            String json = new ObjectMapper().writeValueAsString(map);
-            return ResponseEntity.badRequest().body(json);
+            return ResponseEntity.badRequest().body("Acesso negado");
         }
 
 
-        return ResponseEntity.status(200).body(pessoaService.alterar(id, pessoaDTO));
+        if(this.pessoaService.buscarPessoaId(id).isPresent()){
+            pessoaDTO.setId(id);
+            return ResponseEntity.ok().body(pessoaService.alterar(pessoaDTO));
+        }else{
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Pessoa inexistente");
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    @CrossOrigin
+    @ResponseStatus(HttpStatus.OK)
+    private ResponseEntity<?> excluir(@PathVariable Long id) throws JsonProcessingException {
+
+        if(!this.usuarioService.usuarioLogado().getContaAdmin() && !Objects.equals(this.usuarioService.usuarioLogado().getId(), id)){
+            return ResponseEntity.badRequest().body("Acesso negado");
+        }
+
+//        if(usuarioService.buscarUsuarioId(id).isPresent()){
+            usuarioService.excluir(id);
+            return  ResponseEntity.status(200).body("Sucesso");
+//        }else{
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Pessoa nao existe");
+//        }
     }
 }
