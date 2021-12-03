@@ -62,7 +62,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 
         if (!usuarioDTO.getContaAdmin())
-            usuarioDTO.setConta(this.contaService.salvar());
+            usuario.setConta(this.contaService.salvar());
 
         usuario.setSenha(new BCryptPasswordEncoder().encode(usuario.getSenha()));
         usuario = this.usuarioRepository.save(usuario);
