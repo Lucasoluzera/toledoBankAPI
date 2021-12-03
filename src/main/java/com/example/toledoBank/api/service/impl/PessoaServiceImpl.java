@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -62,6 +63,11 @@ public class PessoaServiceImpl implements PessoaService {
     @Override
     public Endereco salvarEndereco(Endereco endereco) {
         return enderecoService.save(endereco);
+    }
+
+    @Override
+    public List<Pessoa> listar() {
+        return pessoaRepository.findAll();
     }
 
     @Override

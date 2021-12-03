@@ -60,11 +60,36 @@ public class PessoaController {
             return ResponseEntity.badRequest().body("Acesso negado");
         }
 
-//        if(usuarioService.buscarUsuarioId(id).isPresent()){
-            usuarioService.excluir(id);
+        if(pessoaService.buscarPessoaId(id).isPresent()){
+            pessoaService.excluir(id);
             return  ResponseEntity.status(200).body("Sucesso");
-//        }else{
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Pessoa nao existe");
-//        }
+        }else{
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Pessoa nao existe");
+        }
+    }
+
+
+    @GetMapping
+    @CrossOrigin
+    private ResponseEntity<?> listar() {
+        return ResponseEntity.ok(pessoaService.listar());
+    }
+
+    @GetMapping("/id")
+    @CrossOrigin
+    private ResponseEntity<?> buscarPorId(@PathVariable Long id) {
+        if (usuarioService.buscarUsuarioId(id).isPresent())
+            return ResponseEntity.ok(usuarioService.buscarUsuarioId(id).get());
+        else
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nenhum usuário com esse ID encontrado.");
+    }
+
+    @GetMapping("/cpf")
+    @CrossOrigin
+    private ResponseEntity<?> buscarPorId(@PathVariable String cpf) {
+        if (usuarioService.buscarUsuarioPorCpf(cpf) != null)
+            return ResponseEntity.ok(usuarioService.buscarUsuarioPorCpf(cpf));
+        else
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nenhum usuário com esse CPF encontrado.");
     }
 }

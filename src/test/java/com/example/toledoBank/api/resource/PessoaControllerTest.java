@@ -216,7 +216,7 @@ public class PessoaControllerTest {
     void excluirPessoa() throws Exception {
         Long id = 1L;
 
-//        BDDMockito.when(service.buscarPessoaId(BDDMockito.anyLong())).thenReturn(Optional.of(Pessoa.builder().id(id).nomeRazaoSocial("teste").build()));
+        BDDMockito.when(service.buscarPessoaId(BDDMockito.anyLong())).thenReturn(Optional.of(Pessoa.builder().id(id).nomeRazaoSocial("teste").build()));
 
         BDDMockito.given(usuarioService.usuarioLogado()).willReturn(
                 Usuario.builder().contaAdmin(true).pessoa(Pessoa.builder().id(0L).build()).build());

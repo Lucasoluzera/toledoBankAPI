@@ -31,7 +31,7 @@ public class UsuarioController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    private UsuarioDTO criar(@RequestBody @Valid UsuarioDTO usuarioDTO){
+    private UsuarioDTO criar(@RequestBody @Valid UsuarioDTO usuarioDTO) {
 
         return usuarioService.save(usuarioDTO);
     }
@@ -41,14 +41,14 @@ public class UsuarioController {
     @ResponseStatus(HttpStatus.OK)
     private ResponseEntity<?> excluir(@PathVariable Long id) throws JsonProcessingException {
 
-        if(!this.usuarioService.usuarioLogado().getContaAdmin() && !Objects.equals(this.usuarioService.usuarioLogado().getId(), id)){
+        if (!this.usuarioService.usuarioLogado().getContaAdmin() && !Objects.equals(this.usuarioService.usuarioLogado().getId(), id)) {
             return ResponseEntity.badRequest().body("Acesso Negado");
         }
 
-        if(usuarioService.buscarUsuarioId(id).isPresent()){
+        if (usuarioService.buscarUsuarioId(id).isPresent()) {
             usuarioService.excluir(id);
-            return  ResponseEntity.status(200).body("sucesso");
-        }else{
+            return ResponseEntity.status(200).body("sucesso");
+        } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario nao existe");
         }
 
@@ -62,11 +62,35 @@ public class UsuarioController {
             return ResponseEntity.badRequest().body("Usuario sem permissao");
         }
 
-        if(usuarioService.buscarUsuarioId(id).isPresent()){
+        if (usuarioService.buscarUsuarioId(id).isPresent()) {
             usuarioDTO.setId(id);
             return ResponseEntity.ok().body(usuarioService.alterar(usuarioDTO));
-        }else{
+        } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario nao existe");
         }
+    }
+
+    @GetMapping
+    @CrossOrigin
+    private ResponseEntity<?> listar() {
+        return ResponseEntity.ok(usuarioService.listar());
+    }
+
+    @GetMapping("/id")
+    @CrossOrigin
+    private ResponseEntity<?> buscarPorId(@PathVariable Long id) {
+        if (usuarioService.buscarUsuarioId(id).isPresent())
+            return ResponseEntity.ok(usuarioService.buscarUsuarioId(id).get());
+        else
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nenhum usuário com esse ID encontrado.");
+    }
+
+    @GetMapping("/cpf")
+    @CrossOrigin
+    private ResponseEntity<?> buscarPorId(@PathVariable String cpf) {
+        if (usuarioService.buscarUsuarioPorCpf(cpf) != null)
+            return ResponseEntity.ok(usuarioService.buscarUsuarioPorCpf(cpf));
+        else
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nenhum usuário com esse CPF encontrado.");
     }
 }

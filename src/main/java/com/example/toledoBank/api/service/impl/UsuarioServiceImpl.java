@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -71,8 +72,6 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
 
-
-
     @Override
     public UsuarioDTO alterar(UsuarioDTO usuarioDTO) {
         Usuario usuario = modelMapper.map(usuarioDTO, Usuario.class);
@@ -124,6 +123,16 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     public Optional<Usuario> buscarUsuarioId(Long id) {
         return usuarioRepository.findById(id);
+    }
+
+    @Override
+    public Usuario buscarUsuarioPorCpf(String cpf) {
+        return this.usuarioRepository.findByLogin(cpf);
+    }
+
+    @Override
+    public List<Usuario> listar() {
+        return usuarioRepository.findAll();
     }
 
 }

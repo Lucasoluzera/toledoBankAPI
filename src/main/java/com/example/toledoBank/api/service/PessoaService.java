@@ -5,6 +5,7 @@ import com.example.toledoBank.api.model.Endereco;
 import com.example.toledoBank.api.model.Pessoa;
 import com.example.toledoBank.api.model.Telefone;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface PessoaService {
@@ -15,6 +16,8 @@ public interface PessoaService {
     Telefone salvarTelefone(String telefone);
 
     Endereco salvarEndereco(Endereco endereco);
+
+    List<Pessoa> listar();
 
     Pessoa buscarPorCPF(String cpf);
 
