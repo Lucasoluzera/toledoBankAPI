@@ -26,4 +26,9 @@ public class TelefoneServiceImpl implements TelefoneService {
 
         return repository.save(telefone);
     }
+
+    @Override
+    public void excluir(Long id) {
+        repository.deleteById(id);
+    }
 }

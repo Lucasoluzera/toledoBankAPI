@@ -27,9 +27,15 @@ public class ContaServiceImpl implements ContaService {
 
     @Override
     public Conta salvar() {
+        Conta contaBanco = contaRepository.findFirstByOrderByIdDesc();
+
+        if(contaBanco == null)
+            contaBanco = Conta.builder().numero(0).build();
+
         Conta conta = Conta.builder()
                 .saldo(BigDecimal.ZERO)
                 .agencia(1)
+                .numero(contaBanco.getNumero() + 1)
                 .build();
 
         return this.contaRepository.save(conta);
@@ -61,5 +67,10 @@ public class ContaServiceImpl implements ContaService {
         contaSecundaria.setSaldo(conta.getSaldo().add(BigDecimal.valueOf(Long.parseLong(contaOperacoesDTO.getSaldo()))));
         this.contaRepository.save(contaSecundaria);
         return contaOperacoesDTO;
+    }
+
+    @Override
+    public void excluir(Long id) {
+        contaRepository.deleteById(id);
     }
 }

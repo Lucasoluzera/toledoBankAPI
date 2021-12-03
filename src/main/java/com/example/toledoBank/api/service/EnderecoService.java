@@ -10,4 +10,6 @@ public interface EnderecoService {
 
 
     Endereco update(Endereco enderecoAtualizar);
+
+    void excluir(Long id);
 }

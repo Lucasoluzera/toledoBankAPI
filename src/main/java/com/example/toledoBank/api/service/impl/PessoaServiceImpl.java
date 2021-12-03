@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,7 +43,13 @@ public class PessoaServiceImpl implements PessoaService {
 
         Pessoa pessoa = modelMapper.map(pessoaDTO, Pessoa.class);
         pessoa.setTelefone(this.salvarTelefone(pessoaDTO.getTelefoneDTO()));
-        pessoa.setDataNascAbertura(LocalDate.parse(pessoaDTO.getDataNascAbertura()));
+
+        if(pessoa.getDataNascAbertura() != null){
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            pessoa.setDataNascAbertura(LocalDate.parse(pessoaDTO.getDataNascAbertura()));
+        }
+
+        pessoa.setEndereco(salvarEndereco(pessoa.getEndereco()));
 
         Pessoa pessoaSalva = pessoaRepository.save(pessoa);
 
@@ -115,7 +122,14 @@ public class PessoaServiceImpl implements PessoaService {
 
     @Override
     public void excluir(Long id) {
+        Pessoa pessoa = pessoaRepository.findById(id).get();
         pessoaRepository.deleteById(id);
+
+        if(pessoa.getTelefone() != null)
+            this.telefoneService.excluir(pessoa.getTelefone().getId());
+
+        if(pessoa.getEndereco() != null)
+            this.enderecoService.excluir(pessoa.getEndereco().getId());
     }
 
     @Override

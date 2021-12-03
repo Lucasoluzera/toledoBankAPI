@@ -22,7 +22,7 @@ public class Conta {
     Long id;
 
     @Column
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     int numero;
 
     @Column

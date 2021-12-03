@@ -112,7 +112,10 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public void excluir(Long id) {
+        Usuario usuario = usuarioRepository.findById(id).get();
         usuarioRepository.deleteById(id);
+        if(usuario.getConta() != null)
+            contaService.excluir(usuario.getConta().getId());
     }
 
     @Override

@@ -8,4 +8,6 @@ public interface TelefoneService {
     Telefone save(Telefone telefone);
 
     Telefone update(Telefone telefone);
+
+    void excluir(Long id);
 }

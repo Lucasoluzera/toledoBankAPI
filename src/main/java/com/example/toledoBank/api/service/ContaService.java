@@ -14,4 +14,6 @@ public interface ContaService {
     ContaOperacoesDTO depositar(ContaOperacoesDTO contaOperacoesDTO);
 
     ContaOperacoesDTO transferir(ContaOperacoesDTO contaOperacoesDTO);
+
+    void excluir(Long id);
 }

@@ -28,4 +28,9 @@ public class EnderecoServiceImpl implements EnderecoService {
 
         return repository.save(enderecoAtualizar);
     }
+
+    @Override
+    public void excluir(Long id) {
+        repository.deleteById(id);
+    }
 }
