@@ -74,6 +74,10 @@ public class UsuarioController {
     @GetMapping
     @CrossOrigin
     private ResponseEntity<?> listar() {
+
+        if(usuarioService.usuarioLogado() != null && !usuarioService.usuarioLogado().getContaAdmin())
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Sem permissão.");
+
         return ResponseEntity.ok(usuarioService.listar());
     }
 

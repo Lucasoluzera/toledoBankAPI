@@ -43,9 +43,16 @@ public class ContaServiceImpl implements ContaService {
 
     @Override
     public ContaOperacoesDTO sacar(ContaOperacoesDTO contaOperacoesDTO) {
-        Conta conta = contaRepository.findByAgenciaAndNumero(contaOperacoesDTO.getUsuario().getConta().getAgencia(), contaOperacoesDTO.getUsuario().getConta().getNumero());
-        conta.setSaldo(conta.getSaldo().subtract(BigDecimal.valueOf(Long.parseLong(contaOperacoesDTO.getSaldo()))));
-        contaOperacoesDTO.getUsuario().setConta(this.contaRepository.save(conta));
+
+        if(contaOperacoesDTO.getCpfContaSecundaria() != null){
+            Conta contaSecundaria = usuarioRepository.findByLogin(contaOperacoesDTO.getCpfContaSecundaria()).getConta();
+            contaSecundaria.setSaldo(contaSecundaria.getSaldo().add(BigDecimal.valueOf(Long.parseLong(contaOperacoesDTO.getSaldo()))));
+            this.contaRepository.save(contaSecundaria);
+        }else{
+            Conta conta = contaRepository.findByAgenciaAndNumero(contaOperacoesDTO.getUsuario().getConta().getAgencia(), contaOperacoesDTO.getUsuario().getConta().getNumero());
+            conta.setSaldo(conta.getSaldo().subtract(BigDecimal.valueOf(Long.parseLong(contaOperacoesDTO.getSaldo()))));
+            contaOperacoesDTO.getUsuario().setConta(this.contaRepository.save(conta));
+        }
         return contaOperacoesDTO;
     }
 
@@ -64,7 +71,7 @@ public class ContaServiceImpl implements ContaService {
         contaOperacoesDTO.getUsuario().setConta(this.contaRepository.save(conta));
 
         Conta contaSecundaria = usuarioRepository.findByLogin(contaOperacoesDTO.getCpfContaSecundaria()).getConta();
-        contaSecundaria.setSaldo(conta.getSaldo().add(BigDecimal.valueOf(Long.parseLong(contaOperacoesDTO.getSaldo()))));
+        contaSecundaria.setSaldo(contaSecundaria.getSaldo().add(BigDecimal.valueOf(Long.parseLong(contaOperacoesDTO.getSaldo()))));
         this.contaRepository.save(contaSecundaria);
         return contaOperacoesDTO;
     }
