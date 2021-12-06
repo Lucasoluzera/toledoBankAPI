@@ -29,7 +29,7 @@ public class ContaServiceImpl implements ContaService {
     public Conta salvar() {
         Conta contaBanco = contaRepository.findFirstByOrderByIdDesc();
 
-        if(contaBanco == null)
+        if (contaBanco == null)
             contaBanco = Conta.builder().numero(0).build();
 
         Conta conta = Conta.builder()
@@ -44,20 +44,37 @@ public class ContaServiceImpl implements ContaService {
     @Override
     public ContaOperacoesDTO sacar(ContaOperacoesDTO contaOperacoesDTO) {
 
-        if(contaOperacoesDTO.getCpfContaSecundaria() != null){
-            Conta contaSecundaria = usuarioRepository.findByLogin(contaOperacoesDTO.getCpfContaSecundaria()).getConta();
-            contaSecundaria.setSaldo(contaSecundaria.getSaldo().add(BigDecimal.valueOf(Long.parseLong(contaOperacoesDTO.getSaldo()))));
-            this.contaRepository.save(contaSecundaria);
-        }else{
-            Conta conta = contaRepository.findByAgenciaAndNumero(contaOperacoesDTO.getUsuario().getConta().getAgencia(), contaOperacoesDTO.getUsuario().getConta().getNumero());
-            conta.setSaldo(conta.getSaldo().subtract(BigDecimal.valueOf(Long.parseLong(contaOperacoesDTO.getSaldo()))));
-            contaOperacoesDTO.getUsuario().setConta(this.contaRepository.save(conta));
-        }
+
+        Conta conta = contaRepository.findByAgenciaAndNumero(contaOperacoesDTO.getUsuario().getConta().getAgencia(), contaOperacoesDTO.getUsuario().getConta().getNumero());
+
+        if (BigDecimal.valueOf(Long.parseLong(contaOperacoesDTO.getSaldo())).compareTo(conta.getSaldo()) == 1)
+            throw new RuntimeException("Saldo em conta insuficiente.");
+
+        conta.setSaldo(conta.getSaldo().subtract(BigDecimal.valueOf(Long.parseLong(contaOperacoesDTO.getSaldo()))));
+        contaOperacoesDTO.getUsuario().setConta(this.contaRepository.save(conta));
         return contaOperacoesDTO;
     }
 
     @Override
     public ContaOperacoesDTO depositar(ContaOperacoesDTO contaOperacoesDTO) {
+        if (contaOperacoesDTO.getCpfContaSecundaria() != null) {
+
+            Conta conta = contaRepository.findByAgenciaAndNumero(contaOperacoesDTO.getUsuario().getConta().getAgencia(), contaOperacoesDTO.getUsuario().getConta().getNumero());
+
+            if (BigDecimal.valueOf(Long.parseLong(contaOperacoesDTO.getSaldo())).compareTo(conta.getSaldo()) == 1)
+                throw new RuntimeException("Saldo em conta insuficiente.");
+
+            conta.setSaldo(conta.getSaldo().subtract(BigDecimal.valueOf(Long.parseLong(contaOperacoesDTO.getSaldo()))));
+            contaOperacoesDTO.getUsuario().setConta(this.contaRepository.save(conta));
+
+            Conta contaSecundaria = usuarioRepository.findByLogin(contaOperacoesDTO.getCpfContaSecundaria()).getConta();
+            contaSecundaria.setSaldo(contaSecundaria.getSaldo().add(BigDecimal.valueOf(Long.parseLong(contaOperacoesDTO.getSaldo()))));
+            this.contaRepository.save(contaSecundaria);
+
+            return contaOperacoesDTO;
+        }
+
+
         Conta conta = contaRepository.findByAgenciaAndNumero(contaOperacoesDTO.getUsuario().getConta().getAgencia(), contaOperacoesDTO.getUsuario().getConta().getNumero());
         conta.setSaldo(conta.getSaldo().add(BigDecimal.valueOf(Long.parseLong(contaOperacoesDTO.getSaldo()))));
         contaOperacoesDTO.getUsuario().setConta(this.contaRepository.save(conta));

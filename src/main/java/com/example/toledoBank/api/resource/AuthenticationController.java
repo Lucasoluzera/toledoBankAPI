@@ -5,6 +5,7 @@ import com.example.toledoBank.api.model.Usuario;
 import com.example.toledoBank.api.repository.UsuarioRepository;
 import com.example.toledoBank.api.seguranca.JwtTokenUtil;
 import com.example.toledoBank.api.seguranca.JwtUserDetailsService;
+import com.example.toledoBank.api.service.UsuarioService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,8 @@ public class AuthenticationController {
     @Autowired
     private JwtUserDetailsService userDetailsService;
 
+    @Autowired
+    private UsuarioService usuarioService;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -39,19 +42,19 @@ public class AuthenticationController {
 
 
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
-    public ResponseEntity<UsuarioDTO> createAuthenticationToken(@RequestBody com.example.toledoBank.api.dto.UsuarioDTO usuarioDTO) throws Exception {
+    public ResponseEntity<Usuario> createAuthenticationToken(@RequestBody Usuario usuario) throws Exception {
 
-        String senhaFront = usuarioDTO.getSenha();
+        String senhaFront = usuario.getSenha();
 
-        authenticate(usuarioDTO.getLogin(), senhaFront);
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(usuarioDTO.getLogin());
-        Usuario usuario = (Usuario) userDetails;
+        authenticate(usuario.getLogin(), senhaFront);
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(usuario.getLogin());
+        usuario = (Usuario) userDetails;
         usuario.setToken(jwtTokenUtil.generateToken(userDetails));
 
-        usuarioDTO = modelMapper.map(usuario, UsuarioDTO.class);
-        usuarioDTO.setSenha(senhaFront);
+        usuario.setSenha(senhaFront);
 
-        return ResponseEntity.ok(usuarioDTO);
+
+        return ResponseEntity.ok(usuario);
     }
 
 
