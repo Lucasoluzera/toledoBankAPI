@@ -36,9 +36,12 @@ public class PessoaController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    private PessoaDTO criar(@RequestBody PessoaDTO pessoaDTO){
+    private ResponseEntity<?> criar(@RequestBody PessoaDTO pessoaDTO){
+        if (pessoaService.existePorCPF(pessoaDTO.getCpfCnpj()))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Pessoa já existe com esse CPF.");
 
-        return pessoaService.salvar(pessoaDTO);
+
+        return ResponseEntity.ok(pessoaService.salvar(pessoaDTO));
     }
 
     @PutMapping("/{id}")
@@ -48,6 +51,10 @@ public class PessoaController {
         if(usuarioService.usuarioLogado() != null && !this.usuarioService.usuarioLogado().getContaAdmin() && !Objects.equals(this.usuarioService.usuarioLogado().getPessoa().getId(), id)){
             return ResponseEntity.badRequest().body("Acesso negado");
         }
+
+        if (pessoaService.existePorCPF(pessoaDTO.getCpfCnpj()))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Pessoa já existe com esse CPF.");
+
 
 
         if(this.pessoaService.buscarPessoaId(id).isPresent()){

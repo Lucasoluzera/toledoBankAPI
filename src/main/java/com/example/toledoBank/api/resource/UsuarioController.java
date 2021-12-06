@@ -31,9 +31,12 @@ public class UsuarioController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    private UsuarioDTO criar(@RequestBody @Valid UsuarioDTO usuarioDTO) {
+    private ResponseEntity<?> criar(@RequestBody @Valid UsuarioDTO usuarioDTO) {
 
-        return usuarioService.save(usuarioDTO);
+        if (usuarioService.buscarUsuarioPorCpf(usuarioDTO.getCpfCnpj()) != null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Login já existe.");
+
+        return ResponseEntity.ok(usuarioService.save(usuarioDTO));
     }
 
     @DeleteMapping("/{id}")
@@ -56,9 +59,12 @@ public class UsuarioController {
     @PutMapping("/{id}")
     private ResponseEntity<?> alterar(@PathVariable Long id, @RequestBody UsuarioDTO usuarioDTO) throws JsonProcessingException {
 
-        if (usuarioService.usuarioLogado() != null && !this.usuarioService.usuarioLogado().getContaAdmin() && !Objects.equals(this.usuarioService.usuarioLogado().getId(), id)) {
+        if (usuarioService.usuarioLogado() != null && !this.usuarioService.usuarioLogado().getContaAdmin() && !Objects.equals(this.usuarioService.usuarioLogado().getId(), id))
             return ResponseEntity.badRequest().body("Usuario sem permissao");
-        }
+
+        if (usuarioService.buscarUsuarioPorCpf(usuarioDTO.getCpfCnpj()) != null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Login já existe.");
+
 
         if (usuarioService.buscarUsuarioId(id).isPresent()) {
             usuarioDTO.setId(id);
