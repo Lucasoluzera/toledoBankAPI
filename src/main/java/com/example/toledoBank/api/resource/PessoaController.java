@@ -21,6 +21,7 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("/pessoa")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class PessoaController {
 
     @Autowired
