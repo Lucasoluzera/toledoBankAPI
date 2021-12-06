@@ -15,9 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @RestController
 @RequestMapping("/usuario")
@@ -73,10 +71,19 @@ public class UsuarioController {
     @GetMapping
     private ResponseEntity<?> listar() {
 
-        if(usuarioService.usuarioLogado() != null && !usuarioService.usuarioLogado().getContaAdmin())
+        if(usuarioService.usuarioLogado() == null && !usuarioService.usuarioLogado().getContaAdmin())
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Sem permissão.");
 
-        return ResponseEntity.ok(usuarioService.listar());
+        List<Usuario> usuarioList = new ArrayList<>();
+
+        usuarioService.listar().forEach(
+                usuario ->{
+                    usuario.setSenha(null);
+                    usuarioList.add(usuario);
+                }
+        );
+
+        return ResponseEntity.ok(usuarioList);
     }
 
     @GetMapping("/id/{id}")
