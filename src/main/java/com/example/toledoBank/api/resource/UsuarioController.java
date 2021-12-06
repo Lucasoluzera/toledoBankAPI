@@ -36,6 +36,9 @@ public class UsuarioController {
         if (usuarioService.buscarUsuarioPorCpf(usuarioDTO.getCpfCnpj()) != null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Login já existe.");
 
+        if (this.usuarioService.usuarioLogado() != null && !this.usuarioService.usuarioLogado().getContaAdmin() && usuarioDTO.getContaAdmin())
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Acesso Negado");
+
         return ResponseEntity.ok(usuarioService.save(usuarioDTO));
     }
 
@@ -43,9 +46,8 @@ public class UsuarioController {
     @ResponseStatus(HttpStatus.OK)
     private ResponseEntity<?> excluir(@PathVariable Long id) throws JsonProcessingException {
 
-        if (this.usuarioService.usuarioLogado() != null && !this.usuarioService.usuarioLogado().getContaAdmin() && !Objects.equals(this.usuarioService.usuarioLogado().getId(), id)) {
-            return ResponseEntity.badRequest().body("Acesso Negado");
-        }
+        if (this.usuarioService.usuarioLogado() != null && !this.usuarioService.usuarioLogado().getContaAdmin() && !Objects.equals(this.usuarioService.usuarioLogado().getId(), id))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Acesso Negado");
 
         if (usuarioService.buscarUsuarioId(id).isPresent()) {
             usuarioService.excluir(id);

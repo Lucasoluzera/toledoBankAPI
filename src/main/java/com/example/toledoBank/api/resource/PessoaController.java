@@ -48,9 +48,9 @@ public class PessoaController {
     @ResponseStatus(HttpStatus.OK)
     private ResponseEntity<?> atualizar(@PathVariable Long id , @RequestBody PessoaDTO pessoaDTO) throws JsonProcessingException {
 
-        if(usuarioService.usuarioLogado() != null && !this.usuarioService.usuarioLogado().getContaAdmin() && !Objects.equals(this.usuarioService.usuarioLogado().getPessoa().getId(), id)){
-            return ResponseEntity.badRequest().body("Acesso negado");
-        }
+        if(usuarioService.usuarioLogado() != null && !this.usuarioService.usuarioLogado().getContaAdmin() && !Objects.equals(this.usuarioService.usuarioLogado().getPessoa().getId(), id))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Acesso Negado");
+
 
         if (pessoaService.existePorCPF(pessoaDTO.getCpfCnpj()))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Pessoa já existe com esse CPF.");
@@ -69,9 +69,8 @@ public class PessoaController {
     @ResponseStatus(HttpStatus.OK)
     private ResponseEntity<?> excluir(@PathVariable Long id) throws JsonProcessingException {
 
-        if(usuarioService.usuarioLogado() != null && !this.usuarioService.usuarioLogado().getContaAdmin()){
-            return ResponseEntity.badRequest().body("Acesso negado");
-        }
+        if(usuarioService.usuarioLogado() != null && !this.usuarioService.usuarioLogado().getContaAdmin())
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Acesso Negado");
 
         if(pessoaService.buscarPessoaId(id).isPresent()){
             pessoaService.excluir(id);
@@ -86,6 +85,7 @@ public class PessoaController {
     private ResponseEntity<?> listar() {
         if(usuarioService.usuarioLogado() != null && !usuarioService.usuarioLogado().getContaAdmin())
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Sem permissão.");
+
         return ResponseEntity.ok(pessoaService.listar());
     }
 
