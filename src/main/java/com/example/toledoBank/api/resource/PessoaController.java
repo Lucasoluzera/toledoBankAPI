@@ -34,7 +34,6 @@ public class PessoaController {
 
 
     @PostMapping
-    @CrossOrigin
     @ResponseStatus(HttpStatus.CREATED)
     private PessoaDTO criar(@RequestBody PessoaDTO pessoaDTO){
 
@@ -42,7 +41,6 @@ public class PessoaController {
     }
 
     @PutMapping("/{id}")
-    @CrossOrigin
     @ResponseStatus(HttpStatus.OK)
     private ResponseEntity<?> atualizar(@PathVariable Long id , @RequestBody PessoaDTO pessoaDTO) throws JsonProcessingException {
 
@@ -60,7 +58,6 @@ public class PessoaController {
     }
 
     @DeleteMapping("/{id}")
-    @CrossOrigin
     @ResponseStatus(HttpStatus.OK)
     private ResponseEntity<?> excluir(@PathVariable Long id) throws JsonProcessingException {
 
@@ -78,7 +75,6 @@ public class PessoaController {
 
 
     @GetMapping
-    @CrossOrigin
     private ResponseEntity<?> listar() {
         if(usuarioService.usuarioLogado() != null && !usuarioService.usuarioLogado().getContaAdmin())
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Sem permissão.");
@@ -86,7 +82,6 @@ public class PessoaController {
     }
 
     @GetMapping("/id/{id}")
-    @CrossOrigin
     private ResponseEntity<?> buscarPorId(@PathVariable Long id) {
         if (pessoaService.buscarPessoaId(id).isPresent()){
             Pessoa pessoa = pessoaService.buscarPessoaId(id).get();
@@ -99,7 +94,6 @@ public class PessoaController {
     }
 
     @GetMapping("/cpf/{cpf}")
-    @CrossOrigin
     private ResponseEntity<?> buscarPorCPF(@PathVariable String cpf) {
         if (pessoaService.buscarPorCPF(cpf) != null){
             Pessoa pessoa = pessoaService.buscarPorCPF(cpf);

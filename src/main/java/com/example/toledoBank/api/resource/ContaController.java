@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/conta")
-@CrossOrigin
 public class ContaController {
 
     @Autowired

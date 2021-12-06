@@ -21,7 +21,6 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("/usuario")
-@CrossOrigin
 public class UsuarioController {
 
     @Autowired
@@ -39,7 +38,6 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/{id}")
-    @CrossOrigin
     @ResponseStatus(HttpStatus.OK)
     private ResponseEntity<?> excluir(@PathVariable Long id) throws JsonProcessingException {
 
@@ -57,7 +55,6 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
-    @CrossOrigin
     private ResponseEntity<?> alterar(@PathVariable Long id, @RequestBody UsuarioDTO usuarioDTO) throws JsonProcessingException {
 
         if (usuarioService.usuarioLogado() != null && !this.usuarioService.usuarioLogado().getContaAdmin() && !Objects.equals(this.usuarioService.usuarioLogado().getId(), id)) {
@@ -73,7 +70,6 @@ public class UsuarioController {
     }
 
     @GetMapping
-    @CrossOrigin
     private ResponseEntity<?> listar() {
 
         if(usuarioService.usuarioLogado() != null && !usuarioService.usuarioLogado().getContaAdmin())
@@ -83,7 +79,6 @@ public class UsuarioController {
     }
 
     @GetMapping("/id/{id}")
-    @CrossOrigin
     private ResponseEntity<?> buscarPorId(@PathVariable Long id) {
         if (usuarioService.buscarUsuarioId(id).isPresent()) {
             Usuario usuario = usuarioService.buscarUsuarioId(id).get();
@@ -96,7 +91,6 @@ public class UsuarioController {
     }
 
     @GetMapping("/cpf/{cpf}")
-    @CrossOrigin
     private ResponseEntity<?> buscarPorCPF(@PathVariable String cpf) {
         if (usuarioService.buscarUsuarioPorCpf(cpf) != null) {
             Usuario usuario = usuarioService.buscarUsuarioPorCpf(cpf);
