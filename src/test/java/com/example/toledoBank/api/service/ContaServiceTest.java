@@ -57,6 +57,7 @@ public class ContaServiceTest {
     @DisplayName("Deve sacar o saldo com sucesso.")
     void sacarSaldo() {
         ContaOperacoesDTO contaOperacoesDTO = criarContaOperacoesDTO();
+        contaOperacoesDTO.setCpfContaSecundaria(null);
 
         Conta conta = criarContaBuilder();
         conta.setId(1L);
@@ -75,7 +76,6 @@ public class ContaServiceTest {
         assertThat(contaOperacoesDTOSalva.getUsuario().getConta().getId()).isNotNull();
         assertThat(contaOperacoesDTOSalva.getUsuario().getConta().getSaldo()).isEqualTo(BigDecimal.valueOf(5.25));
         assertThat(contaOperacoesDTOSalva.getSaldo()).isEqualTo("5");
-        assertThat(contaOperacoesDTOSalva.getCpfContaSecundaria()).isEqualTo("1111111111");
     }
 
     @Test
