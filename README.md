@@ -1,5 +1,7 @@
 # toledoBankAPI
-Api do banco Toledo
+API do banco Toledo
+
+Com todos os registros basicos implementando JPA,Swagger,Testes unitarios.
 
 [![Build Status](https://app.travis-ci.com/Lucasoluzera/toledoBankAPI.svg?branch=main)](https://app.travis-ci.com/Lucasoluzera/toledoBankAPI)
 
